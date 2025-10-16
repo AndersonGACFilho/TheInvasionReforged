@@ -11,7 +11,7 @@ public class ProjectileBehavior : MonoBehaviour
     private int damage;
 
     [Header("Projectile Settings")]
-    public int lifespan = 5; // seconds
+    public float lifespan = 0.1f; // seconds
 
     public void Init(ProjectileOwnerType owner, int damageAmount)
     {

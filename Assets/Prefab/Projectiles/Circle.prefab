@@ -168,4 +168,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04494e5281e781140a43b90e8bf51939, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ProjectileBehavior
-  lifespan: 1
+  lifespan: 0.5
