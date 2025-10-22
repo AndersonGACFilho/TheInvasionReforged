@@ -1,6 +1,7 @@
+using Locomotion.MovementStrategies;
 using UnityEngine;
 
-namespace Code.Entities.Enemy.EnemyMovementStrategies
+namespace Locomotion.Enemy.MovementStrategies
 {
     /// <summary>
     /// Movement strategy for ranged enemies that maintain a specific distance from their target.
@@ -18,15 +19,9 @@ namespace Code.Entities.Enemy.EnemyMovementStrategies
         [Tooltip("The tolerance around the desired distance.")]
         public float tolerance = 2.0f;
 
-        public override void ExecuteMovement(Transform self, Transform target, EntityMovement movementController)
+        public override void ExecuteMovement(Vector2 selfPosition, Vector2 targetPosition, IMovable movementController)
         {
-            if (!target)
-            {
-                movementController.Stop();
-                return;
-            }
-
-            Vector2 vectorToTarget = target.position - self.position;
+            Vector2 vectorToTarget = targetPosition - selfPosition;
             var distance = vectorToTarget.magnitude;
 
             if (distance < desiredDistance - tolerance)

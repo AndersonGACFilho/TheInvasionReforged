@@ -1,6 +1,7 @@
+using Locomotion.MovementStrategies;
 using UnityEngine;
 
-namespace Code.Entities.Enemy.EnemyMovementStrategies
+namespace Locomotion.Enemy.MovementStrategies
 {
     /// <summary>
     /// Movement strategy for melee enemies that move directly towards their target until within a specified stop
@@ -22,15 +23,9 @@ namespace Code.Entities.Enemy.EnemyMovementStrategies
         /// <param name="self"> The transform of the enemy entity. </param>
         /// <param name="target"> The transform of the target entity. </param>
         /// <param name="movementController"> The movement controller responsible for handling movement actions. </param>
-        public override void ExecuteMovement(Transform self, Transform target, EntityMovement movementController)
+        public override void ExecuteMovement(Vector2 selfPosition, Vector2 targetPosition, IMovable movementController)
         {
-            if (!target)
-            {
-                movementController.Stop();
-                return;
-            }
-
-            Vector2 direction = target.position - self.position;
+            Vector2 direction = targetPosition - selfPosition;
             if (direction.magnitude > stopDistance)
             {
                 movementController.Move(direction.normalized);

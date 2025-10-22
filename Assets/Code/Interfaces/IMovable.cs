@@ -15,4 +15,9 @@ public interface IMovable
     /// <param name="direction"> The direction to move in. </param>
     /// <param name="speedOverride"> Optional speed override. If null, the entity's default speed is used. </param>
     public void Move(Vector2 direction, float? speedOverride = null);
+
+    /// <summary>
+    /// Stops the entity's movement.
+    /// </summary>
+    void Stop();
 }
