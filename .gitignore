@@ -115,6 +115,8 @@ fabric.properties
 /[Bb]uilds/
 /[Ll]ogs/
 /[Aa]sset/_[Rr]ecovery/
+/.[Pp]lastic/
+/ProjectSettings/Packages/
 
 # TextMesh Pro
 [Aa]ssets/TextMesh*Pro/
