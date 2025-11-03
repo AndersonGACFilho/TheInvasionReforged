@@ -116,6 +116,12 @@ fabric.properties
 /[Ll]ogs/
 /[Aa]sset/_[Rr]ecovery/
 
+# TextMesh Pro
+[Aa]ssets/TextMesh*Pro/
+
+# But keep the settings
+![Aa]ssets/TextMesh*Pro/Resources/
+
 /[Uu]ser[Ss]ettings/
 
 # MemoryCaptures can get excessive in size.
