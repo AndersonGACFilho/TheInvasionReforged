@@ -17,6 +17,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{577136
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UnrealBuildTool.Plugins", "UnrealBuildTool.Plugins", "{7B5CFB44-F0FB-31DF-AE62-C3C096A29A7B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarketplaceRules", "..\..\Aplicativos\Unreal\UE_5.7\Engine\Intermediate\Build\BuildRulesProjects\MarketplaceRules\MarketplaceRules.csproj", "{AE3F0457-D4F8-3100-914C-A3DCD7DAEC03}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UE5ProgramRules", "..\..\Aplicativos\Unreal\UE_5.7\Engine\Intermediate\Build\BuildRulesProjects\UE5ProgramRules\UE5ProgramRules.csproj", "{7AA12B23-F723-3022-A7E9-6EB01E7119B0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UE5Rules", "..\..\Aplicativos\Unreal\UE_5.7\Engine\Intermediate\Build\BuildRulesProjects\UE5Rules\UE5Rules.csproj", "{5C6B5CE1-3567-3577-A3FB-065C76773EE3}"
@@ -153,6 +155,36 @@ Global
 		AvailablePlatforms=Win64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AE3F0457-D4F8-3100-914C-A3DCD7DAEC03}.DebugGame Editor|Win64.ActiveCfg = Development|Any CPU
+		{AE3F0457-D4F8-3100-914C-A3DCD7DAEC03}.DebugGame Editor|Win64.Build.0 = Development|Any CPU
+		{AE3F0457-D4F8-3100-914C-A3DCD7DAEC03}.DebugGame Editor|Win64-arm64.ActiveCfg = Development|Any CPU
+		{AE3F0457-D4F8-3100-914C-A3DCD7DAEC03}.DebugGame Editor|Win64-arm64.Build.0 = Development|Any CPU
+		{AE3F0457-D4F8-3100-914C-A3DCD7DAEC03}.DebugGame Editor|Win64-arm64ec.ActiveCfg = Development|Any CPU
+		{AE3F0457-D4F8-3100-914C-A3DCD7DAEC03}.DebugGame Editor|Win64-arm64ec.Build.0 = Development|Any CPU
+		{AE3F0457-D4F8-3100-914C-A3DCD7DAEC03}.DebugGame|Win64.ActiveCfg = Development|Any CPU
+		{AE3F0457-D4F8-3100-914C-A3DCD7DAEC03}.DebugGame|Win64.Build.0 = Development|Any CPU
+		{AE3F0457-D4F8-3100-914C-A3DCD7DAEC03}.DebugGame|Win64-arm64.ActiveCfg = Development|Any CPU
+		{AE3F0457-D4F8-3100-914C-A3DCD7DAEC03}.DebugGame|Win64-arm64.Build.0 = Development|Any CPU
+		{AE3F0457-D4F8-3100-914C-A3DCD7DAEC03}.DebugGame|Win64-arm64ec.ActiveCfg = Development|Any CPU
+		{AE3F0457-D4F8-3100-914C-A3DCD7DAEC03}.DebugGame|Win64-arm64ec.Build.0 = Development|Any CPU
+		{AE3F0457-D4F8-3100-914C-A3DCD7DAEC03}.Development Editor|Win64.ActiveCfg = Development|Any CPU
+		{AE3F0457-D4F8-3100-914C-A3DCD7DAEC03}.Development Editor|Win64.Build.0 = Development|Any CPU
+		{AE3F0457-D4F8-3100-914C-A3DCD7DAEC03}.Development Editor|Win64-arm64.ActiveCfg = Development|Any CPU
+		{AE3F0457-D4F8-3100-914C-A3DCD7DAEC03}.Development Editor|Win64-arm64.Build.0 = Development|Any CPU
+		{AE3F0457-D4F8-3100-914C-A3DCD7DAEC03}.Development Editor|Win64-arm64ec.ActiveCfg = Development|Any CPU
+		{AE3F0457-D4F8-3100-914C-A3DCD7DAEC03}.Development Editor|Win64-arm64ec.Build.0 = Development|Any CPU
+		{AE3F0457-D4F8-3100-914C-A3DCD7DAEC03}.Development|Win64.ActiveCfg = Development|Any CPU
+		{AE3F0457-D4F8-3100-914C-A3DCD7DAEC03}.Development|Win64.Build.0 = Development|Any CPU
+		{AE3F0457-D4F8-3100-914C-A3DCD7DAEC03}.Development|Win64-arm64.ActiveCfg = Development|Any CPU
+		{AE3F0457-D4F8-3100-914C-A3DCD7DAEC03}.Development|Win64-arm64.Build.0 = Development|Any CPU
+		{AE3F0457-D4F8-3100-914C-A3DCD7DAEC03}.Development|Win64-arm64ec.ActiveCfg = Development|Any CPU
+		{AE3F0457-D4F8-3100-914C-A3DCD7DAEC03}.Development|Win64-arm64ec.Build.0 = Development|Any CPU
+		{AE3F0457-D4F8-3100-914C-A3DCD7DAEC03}.Shipping|Win64.ActiveCfg = Development|Any CPU
+		{AE3F0457-D4F8-3100-914C-A3DCD7DAEC03}.Shipping|Win64.Build.0 = Development|Any CPU
+		{AE3F0457-D4F8-3100-914C-A3DCD7DAEC03}.Shipping|Win64-arm64.ActiveCfg = Development|Any CPU
+		{AE3F0457-D4F8-3100-914C-A3DCD7DAEC03}.Shipping|Win64-arm64.Build.0 = Development|Any CPU
+		{AE3F0457-D4F8-3100-914C-A3DCD7DAEC03}.Shipping|Win64-arm64ec.ActiveCfg = Development|Any CPU
+		{AE3F0457-D4F8-3100-914C-A3DCD7DAEC03}.Shipping|Win64-arm64ec.Build.0 = Development|Any CPU
 		{7AA12B23-F723-3022-A7E9-6EB01E7119B0}.DebugGame Editor|Win64.ActiveCfg = Development|Any CPU
 		{7AA12B23-F723-3022-A7E9-6EB01E7119B0}.DebugGame Editor|Win64.Build.0 = Development|Any CPU
 		{7AA12B23-F723-3022-A7E9-6EB01E7119B0}.DebugGame Editor|Win64-arm64.ActiveCfg = Development|Any CPU
@@ -1786,6 +1818,7 @@ Global
 		{BB274F15-B1A6-3417-8052-A758E42FC596} = {57713676-9DBE-331C-AD10-26632AC9EE0C}
 		{124A70ED-DBAD-381F-BCAE-923F119828AC} = {57713676-9DBE-331C-AD10-26632AC9EE0C}
 		{313979DB-871C-3898-8E3C-2D3D58608E4F} = {7B5CFB44-F0FB-31DF-AE62-C3C096A29A7B}
+		{AE3F0457-D4F8-3100-914C-A3DCD7DAEC03} = {C2F57ECE-B26F-39D8-BDA7-C1D40BD8F180}
 		{7AA12B23-F723-3022-A7E9-6EB01E7119B0} = {C2F57ECE-B26F-39D8-BDA7-C1D40BD8F180}
 		{5C6B5CE1-3567-3577-A3FB-065C76773EE3} = {C2F57ECE-B26F-39D8-BDA7-C1D40BD8F180}
 		{AAD102B8-2FA3-314B-B9A7-4A22659C668D} = {C2F57ECE-B26F-39D8-BDA7-C1D40BD8F180}
