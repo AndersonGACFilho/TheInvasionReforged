@@ -1,10 +1,9 @@
-// Source/TIRCore/Public/Interfaces/ITIRTargetable.h
 #pragma once
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "ITIRTargetable.generated.h"
 #include "Types/TIREnums.h"
+#include "TIRTargetable.generated.h"
 
 UINTERFACE(MinimalAPI, Blueprintable)
 class UTIRTargetable : public UInterface

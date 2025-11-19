@@ -3,7 +3,7 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
-#include "TIRWeaponType.h"
+#include "TIREnums.h"
 #include "TIRStructs.generated.h"
 
 /**
