@@ -7,7 +7,7 @@
  * Weapon categories for logic and UI.
  */
 UENUM(BlueprintType)
-enum class ETirWeaponType : uint8
+enum class ETIRWeaponType : uint8
 {
 	Primary     UMETA(DisplayName = "Primary Weapon"),
 	Special     UMETA(DisplayName = "Special Ability"),
@@ -18,7 +18,7 @@ enum class ETirWeaponType : uint8
  * Classification of damage for resistance calculations.
  */
 UENUM(BlueprintType)
-enum class ETirDamageType : uint8
+enum class ETIRDamageType : uint8
 {
 	Physical    UMETA(DisplayName = "Physical Impact"),
 	Energy      UMETA(DisplayName = "Energy/Plasma"),
@@ -27,10 +27,22 @@ enum class ETirDamageType : uint8
 };
 
 /**
+ * Classification of healing for buff/modifier calculations.
+ */
+UENUM(BlueprintType)
+enum class ETIRHealType : uint8
+{
+	Instant     UMETA(DisplayName = "Instant Heal"),
+	Regeneration UMETA(DisplayName = "Regeneration Over Time"),
+	Lifesteal   UMETA(DisplayName = "Lifesteal"),
+	Pickup      UMETA(DisplayName = "Health Pickup")
+};
+
+/**
  * Faction/Team definition for targeting logic.
  */
 UENUM(BlueprintType)
-enum class ETirTeam : uint8
+enum class ETIRTeam : uint8
 {
 	Player      UMETA(DisplayName = "Player"),
 	Enemy       UMETA(DisplayName = "Enemy"),
