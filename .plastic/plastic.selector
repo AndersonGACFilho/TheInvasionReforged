@@ -1,4 +1,0 @@
-repository "TheInvasionReforged/TheInvasionReforged@4673044236397@cloud"
-  path "/"
-    br "/main"
-    co "/main"

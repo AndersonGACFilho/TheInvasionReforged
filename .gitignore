@@ -204,3 +204,9 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/windows,linux,jetbrains+all,unity
+# UVCS workspace metadata
+.plastic/
+
+# IDE
+.idea/
+.vscode/
