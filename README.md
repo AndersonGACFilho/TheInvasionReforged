@@ -1,114 +1,153 @@
-# Project: The Invasion: Reforged
+# The Invasion: Reforged
 
-A 2D retro space shooter built in Unity, combining the addictive, wave-based survival of *Vampire Survivors* with classic top-down arcade action.
+[![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
+[![Unity 6](https://img.shields.io/badge/Unity-6000.2.8f1-000000.svg?logo=unity&logoColor=white)](https://unity.com/)
+[![C#](https://img.shields.io/badge/C%23-239120.svg?logo=csharp&logoColor=white)](https://learn.microsoft.com/dotnet/csharp/)
+[![Architecture: SOLID](https://img.shields.io/badge/architecture-SOLID-6A5ACD.svg)](#architecture)
+[![Pattern: HSM](https://img.shields.io/badge/AI-Hierarchical%20State%20Machine-2A6DB2.svg)](#enemy-ai)
+[![Pattern: Strategy](https://img.shields.io/badge/movement-Strategy%20pattern-0A9EDC.svg)](#movement)
+[![Genre: Roguelite](https://img.shields.io/badge/genre-Roguelite%20Shooter-FF7F50.svg)](#gameplay)
+[![Remake of](https://img.shields.io/badge/remake%20of-The%20Invasion-00599C.svg?logo=github&logoColor=white)](https://github.com/AndersonGACFilho/The-Invasion-Game)
 
-## About The Project
+A 2D retro space shooter that takes the wave survival of *Vampire Survivors*
+into top-down arcade action. It is a full remake of
+[The Invasion](https://github.com/AndersonGACFilho/The-Invasion-Game), the
+game I wrote in my first semester of university, rebuilt to find out how far
+gameplay code can be pulled apart before it stops being one system.
 
-This project is a complete remake and reimagining of a game I first developed during my first semester of college. The goal is to apply modern software design principles and the full power of the Unity engine to create a polished, scalable, and fun roguelite experience.
+The script is flipped: you are the lone alien survivor holding off endless
+human fleets, scavenging their scrap to evolve a ship that ends each run
+looking nothing like it started.
 
-In **The Invasion: Reforged**, you flip the script: you are the lone alien survivor, fending off endless waves of aggressive human fleets. By collecting their scrap, you can upgrade your ship with a vast array of alien technology, evolving with every run to become an unstoppable force.
+## Gameplay
 
------
+**Survive. Evolve. Annihilate.** Experience from fallen enemies buys a choice
+between random upgrades, so every run builds a different ship.
 
-## Core Gameplay Mechanics
+### Alien artifacts
 
-The gameplay loop is simple: **Survive. Evolve. Annihilate.** Collect experience from fallen enemies to choose from a random selection of upgrades, creating a unique build in every run.
+Elite enemies can drop supply crates holding artifacts. An artifact is a
+permanent buff **for the rest of the current run**, large enough to change how
+the run is played rather than nudge a number. The **Luck** attribute governs
+how often they appear.
 
-### Special Crate Drops
+| Artifact              | Effect                                                                             |
+|-----------------------|-------------------------------------------------------------------------------------|
+| **Mega Bomb Core**    | Does not explode. Integrates into the ship: every level-up now also detonates around you. |
+| **Overcharged Hull**  | A large permanent gain to damage and fire rate, paid for with maximum health.        |
+| **Quantum Thrusters** | Briefly phase through enemies and projectiles after taking damage.                   |
 
-Beyond standard resources, elite enemies have a chance to drop **special supply crates**. These crates contain rare and powerful **Alien Artifacts**. Finding an artifact grants a significant, permanent buff that **lasts for the rest of the current run**, fundamentally altering your strategy and power level. The player's **Luck** attribute directly influences the drop rate of these game-changing items.
+### Attributes
 
-#### Alien Artifact Examples
+| Attribute             | What it governs                          |
+|-----------------------|-------------------------------------------|
+| Thrusters Potency     | Base movement speed.                      |
+| Hull Integrity        | Ship health.                              |
+| Deflection Matrix     | Regenerating shield that absorbs damage.  |
+| Evasion Thrusters     | Chance to evade incoming projectiles.     |
+| Nanobots              | Passive health regeneration.              |
 
-* **"Mega bomb Core":** Does not explode, but instead integrates into your ship. Once per level-up, you now also trigger a small explosion around your ship.
-* **"Overcharged Hull":** Your ship's hull becomes unstable but powerful. You gain a massive permanent boost to damage and fire rate, but your max health is reduced.
-* **"Quantum Thrusters":** A permanent upgrade to your evasion systems, granting you the ability to briefly phase through enemies and projectiles after taking damage.
+### Upgrades
 
------
+**Offensive** — Cooldown Reduction, Energy Amplifier, Projectile Velocity,
+Blast Radius, Multishot, Effect Duration.
 
-### Player Attributes
+**Utility** — Tractor Beam Range, Data Analysis, Luck, Scrap Multiplier and
+Tech Diagram, the last of which feeds meta-progression between runs.
 
-* **Thrusters Potency:** Base movement speed.
-* **Hull Integrity:** Your ship's health.
-* **Deflection Matrix:** A regenerating shield that absorbs damage.
-* **Evasion Thrusters:** Chance to evade incoming projectiles.
-* **Nanobots:** Passive health regeneration.
+## Architecture
 
-### Offensive Upgrades
+The point of the remake is the shape of the code. Responsibilities are split
+into modules, and the two decisions that carry the most weight are the enemy
+state machine and the movement strategies.
 
-* **Cooldown Reduction:** Fire your weapons faster.
-* **Energy Amplifier:** Increases all outgoing damage.
-* **Projectile Velocity:** Your projectiles travel faster.
-* **Blast Radius:** Increases the area of effect for explosive weapons.
-* **Multishot:** Fire additional projectiles with each attack.
-* **Effect Duration:** Increases the duration of status effects or lingering attacks.
+```
+Assets/Code/
+├── Control Module/       Who decides what an entity does
+│   ├── EntityController.cs
+│   ├── Player/PlayerInputController.cs
+│   ├── Enemy/EnemyBrain.cs · EnemyAIContext.cs
+│   └── HSTM/             Hierarchical state machine and its states
+├── Locomotion Module/    How an entity moves once something decided
+│   ├── EntityMovement.cs
+│   ├── MovementStrategy.cs
+│   └── Enemy/MovementStrategies/
+├── Stats/EntityStats.cs
+├── Interfaces/IMovable.cs
+└── UI Module/Widgets/
+```
 
-### Utility Upgrades
+### Enemy AI
 
-* **Tractor Beam Range:** Automatically collect pickups from a wider radius.
-* **Data Analysis:** Gain more experience from each pickup.
-* **Luck:** Increases your chances of getting rare upgrades and powerful artifact drops.
-* **Scrap Multiplier:** Gain more currency during a run.
-* **Tech Diagram:** Gain more permanent currency for meta-progression.
+Enemy behaviour is a **hierarchical** state machine rather than a flat one,
+so shared behaviour lives in the superstate instead of being copied across
+siblings.
 
------
+```mermaid
+stateDiagram-v2
+    [*] --> OutOfCombat
+    OutOfCombat --> Combat: target acquired
+    Combat --> OutOfCombat: target lost
 
-## Architectural Goals & SOLID Principles
+    state OutOfCombat {
+        [*] --> Idle
+        Idle --> Patrol
+        Patrol --> Idle
+    }
 
-A primary goal of this project is to build a robust and maintainable codebase by adhering to SOLID principles.
+    state Combat {
+        [*] --> Chase
+        Chase --> Attack: in range
+        Attack --> Chase: out of range
+    }
+```
 
-### S - Single Responsibility Principle (SRP)
+`EnemyBrain` owns the machine, `EnemyAIContext` carries the shared state the
+states read, and each state derives from `EntityStateBase`.
 
-Components are designed to have one job. For example, `PlayerInputReader` only reads input, while `MovementHandler` only applies movement.
+### Movement
 
-### O - Open/Closed Principle (OCP)
+`MovementStrategy` is a **ScriptableObject**. A new way of moving is a new
+asset, not an edit to the mover: `EntityMovement` never learns about melee,
+ranged, patrol or idle behaviour, it just runs whichever strategy it was
+handed.
 
-The system is **open for extension, but closed for modification**. This is heavily achieved using Scriptable Objects for weapons. Adding a new weapon never requires modifying the `PlayerAttackHandler`.
+This is the Open/Closed Principle where it actually pays off, and it is what
+lets an enemy swap movement mid-run as its state changes.
 
-### L - Liskov Substitution Principle (LSP)
+### SOLID in practice
 
-This is achieved by using interfaces like `IDamageable`. Projectiles can damage any object that implements this interface, whether it's a player, an enemy, or a destructible asteroid.
+| Principle | Where it shows                                                                                  |
+|-----------|--------------------------------------------------------------------------------------------------|
+| **SRP**   | `PlayerInputController` reads input and nothing else; `EntityMovement` applies motion and nothing else. |
+| **OCP**   | Movement strategies are ScriptableObjects, so the set grows without touching the mover.          |
+| **LSP**   | `IMovable` lets any entity be moved by the same code, player or enemy.                           |
+| **ISP**   | Interfaces stay small and single-purpose rather than one entity contract.                        |
+| **DIP**   | Control depends on abstractions over locomotion, not on the concrete movers.                     |
 
-### I - Interface Segregation Principle (ISP)
+Damage is still handled concretely. An `IDamageable` seam, so projectiles can
+hit anything that implements it, is the next piece of this work rather than
+something already in place.
 
-Entities only implement the behaviors they need through small, specific interfaces (`IDamageable`, `IMovable`, etc.).
+## Running it
 
-### D - Dependency Inversion Principle (DIP)
+```bash
+git clone https://github.com/AndersonGACFilho/TheInvasionReforged
+```
 
-High-level modules do not depend on low-level ones. Game logic (`PlayerLifeManager`) is completely decoupled from presentation layers (`UIManager`) through the use of C\# events.
+Open in Unity Hub with editor **6000.2.8f1**, load `Assets/Scenes/Main.unity`
+and press Play.
 
------
+## History
 
-## Getting Started
+The repository previously held an Unreal Engine 5.7 prototype of the same
+idea, with a `TIRCore` module of gameplay interfaces. That direction was set
+aside in favour of Unity, and the work is preserved on the
+[`unreal-prototype`](https://github.com/AndersonGACFilho/TheInvasionReforged/tree/unreal-prototype)
+branch.
 
-To run this project locally:
+## Related
 
-1.  Clone the repository:
-    ```sh
-    git clone https://github.com/AndersonGACFilho/TheInvasionReforged
-    ```
-2.  Open the project in Unity Hub using **Unity Editor version 6000.2.8f1**.
-3.  Load the main scene located at `Assets/Scenes/Main.unity`.
-4.  Press the Play button.
-
------
-
-## Roadmap
-
-* [x] Core Player Movement & Input
-* [x] Basic Weapon System using Scriptable Objects
-* [ ] Experience & Level-Up System
-* [ ] UI for Health, Shield, and Experience
-* [ ] Wave Spawning Logic
-* [ ] Alien Artifact System (run-long passive items)
-* [ ] Add 3 unique enemy types
-* [ ] Implement 10 distinct player upgrades
-* [ ] Main Menu & Game Over Screen
-
------
-
-## Contact
-
-Anderson G. A. C. Filho - [https://www.linkedin.com/in/agacf](https://www.linkedin.com/in/agacf) - andersonfilho09@gmail.com
-
-Project Link: [https://github.com/AndersonGACFilho/TheInvasionReforged](https://github.com/AndersonGACFilho/TheInvasionReforged)
+- [The Invasion](https://github.com/AndersonGACFilho/The-Invasion-Game) — the
+  original, written in C++ with Allegro 5 and
+  [playable in the browser](https://andersongacfilho.github.io/play/the-invasion).
