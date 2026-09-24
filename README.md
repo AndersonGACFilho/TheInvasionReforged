@@ -135,8 +135,13 @@ something already in place.
 git clone https://github.com/AndersonGACFilho/TheInvasionReforged
 ```
 
-Open in Unity Hub with editor **6000.2.8f1**, load `Assets/Scenes/Main.unity`
-and press Play.
+Open in Unity Hub with editor **6000.2.8f1**, load
+`Assets/Scenes/SampleScene.unity` and press Play.
+
+That scene is the test bed for the state machine rather than a level: a
+player ship, melee and ranged enemies running their movement strategies, and
+a HUD with health and shield bars. It is the quickest way to watch the
+hierarchy switch between out-of-combat and combat behaviour.
 
 ## History
 
