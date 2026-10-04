@@ -31,11 +31,11 @@ permanent buff **for the rest of the current run**, large enough to change how
 the run is played rather than nudge a number. The **Luck** attribute governs
 how often they appear.
 
-| Artifact              | Effect                                                                             |
-|-----------------------|-------------------------------------------------------------------------------------|
+| Artifact              | Effect                                                                                    |
+|-----------------------|-------------------------------------------------------------------------------------------|
 | **Mega Bomb Core**    | Does not explode. Integrates into the ship: every level-up now also detonates around you. |
-| **Overcharged Hull**  | A large permanent gain to damage and fire rate, paid for with maximum health.        |
-| **Quantum Thrusters** | Briefly phase through enemies and projectiles after taking damage.                   |
+| **Overcharged Hull**  | A large permanent gain to damage and fire rate, paid for with maximum health.             |
+| **Quantum Thrusters** | Briefly phase through enemies and projectiles after taking damage.                        |
 
 ### Attributes
 
@@ -117,13 +117,13 @@ lets an enemy swap movement mid-run as its state changes.
 
 ### SOLID in practice
 
-| Principle | Where it shows                                                                                  |
-|-----------|--------------------------------------------------------------------------------------------------|
+| Principle | Where it shows                                                                                          |
+|-----------|---------------------------------------------------------------------------------------------------------|
 | **SRP**   | `PlayerInputController` reads input and nothing else; `EntityMovement` applies motion and nothing else. |
-| **OCP**   | Movement strategies are ScriptableObjects, so the set grows without touching the mover.          |
-| **LSP**   | `IMovable` lets any entity be moved by the same code, player or enemy.                           |
-| **ISP**   | Interfaces stay small and single-purpose rather than one entity contract.                        |
-| **DIP**   | Control depends on abstractions over locomotion, not on the concrete movers.                     |
+| **OCP**   | Movement strategies are ScriptableObjects, so the set grows without touching the mover.                 |
+| **LSP**   | `IMovable` lets any entity be moved by the same code, player or enemy.                                  |
+| **ISP**   | Interfaces stay small and single-purpose rather than one entity contract.                               |
+| **DIP**   | Control depends on abstractions over locomotion, not on the concrete movers.                            |
 
 Damage is still handled concretely. An `IDamageable` seam, so projectiles can
 hit anything that implements it, is the next piece of this work rather than
@@ -142,6 +142,21 @@ That scene is the test bed for the state machine rather than a level: a
 player ship, melee and ranged enemies running their movement strategies, and
 a HUD with health and shield bars. It is the quickest way to watch the
 hierarchy switch between out-of-combat and combat behaviour.
+
+Contributing rather than just running it needs Git LFS and the pre-commit
+hooks as well: see [Development setup](docs/development-setup.md).
+
+## Development
+
+Development setup, Git conventions and repository automation are documented
+in the [`docs/`](docs/) directory.
+
+- [Development setup](docs/development-setup.md) — Unity version, Git and
+  line-ending configuration, pre-commit hooks, Git LFS
+- [Git workflow](docs/git-workflow.md) — Conventional Commits, branch
+  naming, Pull Requests
+- [GitHub automation](docs/github-automation.md) — Project V2 and automatic
+  branch creation
 
 ## History
 
