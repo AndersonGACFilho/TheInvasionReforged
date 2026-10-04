@@ -73,7 +73,7 @@ namespace Control_Module.Enemy
 
             // Format state names by removing common prefixes/suffixes
             string mainStateName = mainState.GetType().Name.Replace("Enemy", "").Replace("State", "");
-            
+
             string fullStateText = $"State: {mainStateName}";
 
             if (subState != null)
@@ -81,7 +81,7 @@ namespace Control_Module.Enemy
                 string subStateName = subState.GetType().Name.Replace("Enemy", "").Replace("State", "");
                 fullStateText += $" ({subStateName})";
             }
-            
+
             _context.debugText.text = fullStateText;
         }
     }

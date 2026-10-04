@@ -1,6 +1,6 @@
 using Control_Module.Enemy;
-using Locomotion.MovementStrategies;
 using UnityEngine;
+
 namespace Control_Module.HSTM.States.Enemy.OutOfCombat.SubState
 {
     /// <summary>
@@ -20,7 +20,8 @@ namespace Control_Module.HSTM.States.Enemy.OutOfCombat.SubState
         /// <param name="stateMachine"> The hierarchical state machine.</param>
         public EnemyIdleState(EnemyAIContext context, EntityHierarchicalStateMachine<EnemyAIContext> stateMachine)
             : base(context, stateMachine)
-        {}
+        {
+        }
 
         /// <summary>
         /// Called when entering the Idle state.

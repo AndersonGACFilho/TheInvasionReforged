@@ -1,6 +1,6 @@
 using Control_Module.Enemy;
-using Locomotion.MovementStrategies;
 using UnityEngine;
+
 namespace Control_Module.HSTM.States.Enemy.OutOfCombat.SubState
 {
     /// <summary>
@@ -11,8 +11,6 @@ namespace Control_Module.HSTM.States.Enemy.OutOfCombat.SubState
     /// </remarks>
     public class EnemyPatrolState : EntityStateBase<EnemyAIContext>
     {
-        public Transform targetPoint { get; private set; }
-
         /// <summary>
         /// Initializes the Patrol state with its context and state machine.
         /// </summary>
@@ -20,7 +18,11 @@ namespace Control_Module.HSTM.States.Enemy.OutOfCombat.SubState
         /// <param name="stateMachine"> The hierarchical state machine.</param>
         public EnemyPatrolState(EnemyAIContext context, EntityHierarchicalStateMachine<EnemyAIContext> stateMachine)
             : base(context, stateMachine)
-        {}
+        {
+        }
+
+        public Transform targetPoint { get; private set; }
+
         /// <summary>
         /// Called when entering the Patrol state.
         /// </summary>
@@ -44,11 +46,11 @@ namespace Control_Module.HSTM.States.Enemy.OutOfCombat.SubState
 
             // Check for arrival
             float arrivalDistance = Vector2.Distance(Context.transform.position, targetPoint.position);
-            if (arrivalDistance < 0.1f) 
+            if (arrivalDistance < 0.1f)
             {
                 // Update index for next time
                 Context.currentPatrolPointIndex = (Context.currentPatrolPointIndex + 1) % Context.patrolPoints.Length;
-                
+
                 Context.InvokePatrolPointArrived();
             }
         }

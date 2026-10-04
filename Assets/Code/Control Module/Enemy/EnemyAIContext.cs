@@ -5,11 +5,9 @@ using Control_Module.HSTM.States.Enemy.Combat;
 using Control_Module.HSTM.States.Enemy.Combat.SubState;
 using Control_Module.HSTM.States.Enemy.OutOfCombat;
 using Control_Module.HSTM.States.Enemy.OutOfCombat.SubState;
-using Locomotion;
 using Locomotion.MovementStrategies;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Control_Module.Enemy
 {
@@ -29,7 +27,7 @@ namespace Control_Module.Enemy
     }
 
     /// <summary>
-    /// A helper class that Unity can serialize to create 
+    /// A helper class that Unity can serialize to create
     /// a key-value pair for the Inspector.
     /// </summary>
     [Serializable]
@@ -46,55 +44,48 @@ namespace Control_Module.Enemy
     /// </summary>
     public class EnemyAIContext : EntityController
     {
-        [Header("Enemy AI Context")]
-        [Tooltip("The target the enemy will move towards.")]
+        [Header("Enemy AI Context")] [Tooltip("The target the enemy will move towards.")]
         public GameObject target;
 
         [Tooltip("Tag used to identify the target object in the scene.")]
         public string targetTag = "Player";
 
         [Space]
-        [Tooltip("Assign each movement strategy to its type here. This list will be used to build the runtime dictionary.")]
+        [Tooltip(
+            "Assign each movement strategy to its type here. This list will be used to build the runtime dictionary.")]
         public List<MovementStrategyPair> movementStrategyConfig;
-        [Tooltip("Drag and drop the movement behaviors from the project.")]
-        public Dictionary<MovementStrategyTypeEnum, MovementStrategy> MovementStrategies { get; private set; } = new();
 
-        [Header("AI Properties")] 
-        [Tooltip("The range at which the enemy can detect the target.")]
+        [Header("AI Properties")] [Tooltip("The range at which the enemy can detect the target.")]
         public float detectionRange = 10f;
+
         [Tooltip("The range at which the enemy can attack the target.")]
         public float attackRange = 2f;
 
-        [Header("Patrol Settings")] 
-        [Tooltip("The points the enemy will move between when in the Patrol state.")]
+        [Header("Patrol Settings")] [Tooltip("The points the enemy will move between when in the Patrol state.")]
         public Transform[] patrolPoints;
+
         [Tooltip("The time the enemy will idle at each patrol point.")]
         public float patrolIdleTime = 3.0f;
+
         [Tooltip("The index of the current patrol point the enemy is moving towards.")]
         public int currentPatrolPointIndex = 0;
-        
+
         [Tooltip("Debug text to display AI state information.")]
         public TMP_Text debugText;
 
-        // --- MULTICAST DELEGATES (Events) ---
-        // This is the core of decoupling states (Observer Pattern)
-        public event Action OnTargetSpotted;
-        public event Action OnTargetLost;
-        public event Action OnTargetInAttackRange;
-        public event Action OnTargetOutOfAttackRange;
-        public event Action OnAttackPerformed;
-        public event Action OnPatrolPointArrived;
-        public event Action OnIdleTimeFinished;
-        
+        [HideInInspector] public EnemyAttackState AttackState;
+        [HideInInspector] public EnemyChaseState ChaseState;
+        [HideInInspector] public EnemyCombatState CombatState;
+        [HideInInspector] public EnemyIdleState IdleState;
+        [HideInInspector] public EnemyOutOfCombatState OutOfCombatState;
+        [HideInInspector] public EnemyPatrolState PatrolState;
+
 
         // --- State Machine References (Populated by EnemyBrain) ---
         [HideInInspector] public EntityHierarchicalStateMachine<EnemyAIContext> StateMachine;
-        [HideInInspector] public EnemyOutOfCombatState OutOfCombatState;
-        [HideInInspector] public EnemyCombatState CombatState;
-        [HideInInspector] public EnemyIdleState IdleState;
-        [HideInInspector] public EnemyPatrolState PatrolState;
-        [HideInInspector] public EnemyChaseState ChaseState;
-        [HideInInspector] public EnemyAttackState AttackState;
+
+        [Tooltip("Drag and drop the movement behaviors from the project.")]
+        public Dictionary<MovementStrategyTypeEnum, MovementStrategy> MovementStrategies { get; } = new();
 
         /// <summary>
         /// Initializes the enemy movement handler, target reference, and movement strategies.
@@ -121,6 +112,16 @@ namespace Control_Module.Enemy
             }
         }
 
+        // --- MULTICAST DELEGATES (Events) ---
+        // This is the core of decoupling states (Observer Pattern)
+        public event Action OnTargetSpotted;
+        public event Action OnTargetLost;
+        public event Action OnTargetInAttackRange;
+        public event Action OnTargetOutOfAttackRange;
+        public event Action OnAttackPerformed;
+        public event Action OnPatrolPointArrived;
+        public event Action OnIdleTimeFinished;
+
         /// <summary>
         /// Utility method for states to call for rotation.
         /// </summary>
@@ -138,7 +139,5 @@ namespace Control_Module.Enemy
         public void InvokeAttackPerformed() => OnAttackPerformed?.Invoke();
         public void InvokePatrolPointArrived() => OnPatrolPointArrived?.Invoke();
         public void InvokeIdleTimeFinished() => OnIdleTimeFinished?.Invoke();
-
     }
 }
-

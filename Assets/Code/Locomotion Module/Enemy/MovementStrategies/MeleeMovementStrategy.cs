@@ -11,7 +11,8 @@ namespace Locomotion.Enemy.MovementStrategies
     /// This strategy causes the enemy to move directly towards the target until it is within the defined stop
     /// distance, at which point it will stop moving.
     /// </remarks>
-    [CreateAssetMenu(fileName = "MeleeMovementStrategy", menuName = "Enemy Movement Strategies/Melee Movement Strategy")]
+    [CreateAssetMenu(fileName = "MeleeMovementStrategy",
+        menuName = "Enemy Movement Strategies/Melee Movement Strategy")]
     public class MeleeMovementStrategy : MovementStrategy
     {
         [Tooltip("The distance at which the enemy will stop moving towards the target.")]
@@ -31,9 +32,8 @@ namespace Locomotion.Enemy.MovementStrategies
                 movementController.Move(direction.normalized);
                 return;
             }
-            
+
             movementController.Stop();
         }
-
     }
 }

@@ -1,4 +1,3 @@
-
 using Control_Module.Enemy;
 using Control_Module.HSTM.States.Enemy.Combat.SubState;
 using Locomotion.MovementStrategies;
@@ -15,10 +14,9 @@ namespace Control_Module.HSTM.States.Enemy.Combat
     /// </remarks>
     public class EnemyCombatState : EntityStateBase<EnemyAIContext>
     {
-        private EnemyChaseState _chaseState;
-        private EnemyAttackState _attackState;
-        
         private readonly MovementStrategy _combatMovementStrategy;
+        private readonly EnemyAttackState _attackState;
+        private readonly EnemyChaseState _chaseState;
 
         /// <summary>
         /// Initializes the Combat state with its context, state machine, and child states.
@@ -40,9 +38,11 @@ namespace Control_Module.HSTM.States.Enemy.Combat
 
             if (!Context.MovementStrategies.TryGetValue(MovementStrategyTypeEnum.Chase, out var strategy))
             {
-                Debug.LogError($"CombatState: No 'Chase' movement strategy found in context for {Context.gameObject.name}!");
+                Debug.LogError(
+                    $"CombatState: No 'Chase' movement strategy found in context for {Context.gameObject.name}!");
                 return;
             }
+
             _combatMovementStrategy = strategy;
         }
 
@@ -68,7 +68,7 @@ namespace Control_Module.HSTM.States.Enemy.Combat
             Context.OnTargetInAttackRange -= HandleTargetInAttackRange;
             Context.OnTargetOutOfAttackRange -= HandleTargetOutOfAttackRange;
             Context.OnTargetLost -= HandleTargetLost;
-            
+
             Context.EntityMovement.Stop();
         }
 

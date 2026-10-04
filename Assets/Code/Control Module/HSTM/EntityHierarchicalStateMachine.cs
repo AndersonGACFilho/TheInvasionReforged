@@ -1,5 +1,5 @@
-using TMPro;
 using UnityEngine;
+
 namespace Control_Module.HSTM
 {
     /// <summary>
@@ -12,15 +12,14 @@ namespace Control_Module.HSTM
     /// </remarks>
     public class EntityHierarchicalStateMachine<T> where T : EntityController
     {
-        [Header("State Machine")]
-        
-        public EntityStateBase<T> currentState { get; private set; }
         private readonly T _context;
 
         public EntityHierarchicalStateMachine(T context)
         {
             _context = context;
         }
+
+        [Header("State Machine")] public EntityStateBase<T> currentState { get; private set; }
 
         public void Initialize(EntityStateBase<T> startingState)
         {
@@ -31,7 +30,7 @@ namespace Control_Module.HSTM
         public void TransitionTo(EntityStateBase<T> newState)
         {
             if (currentState == newState) return;
-            
+
             currentState?.Exit();
             currentState = newState;
             currentState.Enter();

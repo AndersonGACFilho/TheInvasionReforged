@@ -1,4 +1,3 @@
-
 using Control_Module.Enemy;
 using Locomotion.MovementStrategies;
 using UnityEngine;
@@ -13,7 +12,7 @@ namespace Control_Module.HSTM.States.Enemy.Combat.SubState
     /// </remarks>
     public class EnemyChaseState : EntityStateBase<EnemyAIContext>
     {
-        [ Tooltip("Movement strategy used for chasing the target.") ]
+        [Tooltip("Movement strategy used for chasing the target.")]
         private readonly MovementStrategy _chaseStrategy;
 
         /// <summary>
@@ -23,7 +22,8 @@ namespace Control_Module.HSTM.States.Enemy.Combat.SubState
         /// <param name="stateMachine"> The hierarchical state machine.</param>
         public EnemyChaseState(EnemyAIContext context, EntityHierarchicalStateMachine<EnemyAIContext> stateMachine)
             : base(context, stateMachine)
-        {}
+        {
+        }
 
         /// <summary>
         /// Called when entering the Chase state.
@@ -43,6 +43,5 @@ namespace Control_Module.HSTM.States.Enemy.Combat.SubState
                 Context.InvokeTargetInAttackRange();
             }
         }
-        
     }
 }

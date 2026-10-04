@@ -11,11 +11,13 @@ namespace Locomotion.Enemy.MovementStrategies
     /// and to move away if it is too close, maintaining a desired distance with a specified tolerance.
     /// The enemy will stop moving when within the acceptable range.
     /// </remarks>
-    [CreateAssetMenu(fileName = "RangedMovementStrategy", menuName = "Enemy Movement Strategies/Ranged Movement Strategy")]
+    [CreateAssetMenu(fileName = "RangedMovementStrategy",
+        menuName = "Enemy Movement Strategies/Ranged Movement Strategy")]
     public class RangedMovementStrategy : MovementStrategy
     {
         [Tooltip("The distance at which the enemy will stop moving towards the target.")]
         public float desiredDistance = 5.0f;
+
         [Tooltip("The tolerance around the desired distance.")]
         public float tolerance = 2.0f;
 
@@ -29,14 +31,14 @@ namespace Locomotion.Enemy.MovementStrategies
                 movementController.Move(-vectorToTarget.normalized);
                 return;
             }
+
             if (distance > desiredDistance + tolerance)
             {
                 movementController.Move(vectorToTarget.normalized);
                 return;
             }
-            
+
             movementController.Stop();
         }
-
     }
 }

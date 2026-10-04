@@ -1,5 +1,3 @@
-using UnityEngine;
-
 namespace Control_Module.HSTM
 {
     /// <summary>
@@ -10,9 +8,6 @@ namespace Control_Module.HSTM
     {
         protected readonly T Context;
         protected readonly EntityHierarchicalStateMachine<T> StateMachine;
-
-        public EntityStateBase<T> parentState { get; protected set; }
-        public EntityStateBase<T> currentSubState { get; protected set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EntityStateBase{T}"/> class.
@@ -25,10 +20,13 @@ namespace Control_Module.HSTM
             this.StateMachine = stateMachine;
         }
 
+        public EntityStateBase<T> parentState { get; protected set; }
+        public EntityStateBase<T> currentSubState { get; protected set; }
+
         /// <summary>
         /// Called when entering the state.
         /// </summary>
-        public void Enter() 
+        public void Enter()
         {
             DoEnter();
         }
@@ -36,7 +34,7 @@ namespace Control_Module.HSTM
         /// <summary>
         /// Called when exiting the state.
         /// </summary>
-        public void Exit() 
+        public void Exit()
         {
             DoExit();
             currentSubState?.Exit(); // Cascade exit
@@ -45,7 +43,7 @@ namespace Control_Module.HSTM
         /// <summary>
         /// Called each frame to update the state logic.
         /// </summary>
-        public void LogicUpdate() 
+        public void LogicUpdate()
         {
             DoLogic();
             currentSubState?.LogicUpdate();
@@ -61,10 +59,21 @@ namespace Control_Module.HSTM
         }
 
         // --- Subclasses override these ---
-        protected virtual void DoEnter() { }
-        protected virtual void DoExit() { }
-        protected virtual void DoLogic() { }
-        protected virtual void DoPhysics() { }
+        protected virtual void DoEnter()
+        {
+        }
+
+        protected virtual void DoExit()
+        {
+        }
+
+        protected virtual void DoLogic()
+        {
+        }
+
+        protected virtual void DoPhysics()
+        {
+        }
 
         /// <summary>
         /// Sets the new active sub-state for this state.

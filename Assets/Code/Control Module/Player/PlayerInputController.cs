@@ -12,25 +12,24 @@ namespace Control_Module.Player
     /// </remarks>
     public class PlayerInputController : EntityController
     {
-        [Header("Player Controller")] 
-        [Tooltip("Rotation offset to align the player sprite correctly.")]
+        [Header("Player Controller")] [Tooltip("Rotation offset to align the player sprite correctly.")]
         public float rotationOffset;
 
         [Tooltip("Speed at which the player rotates to face the mouse cursor."),
          Range(0f, 100f)]
         public float rotationSpeed = 20f;
 
-        [Tooltip("Reference to the PlayerInput component.")]
-        private PlayerInput _playerInput;
-
-        [Tooltip("Stored movement input from the player.")]
-        private Vector2 _moveInput;
-
         [Tooltip("Stored look input (mouse position) from the player.")]
         private Vector2 _lookInput;
 
         [Tooltip("Reference to the main camera in the scene.")]
         private Camera _mainCamera;
+
+        [Tooltip("Stored movement input from the player.")]
+        private Vector2 _moveInput;
+
+        [Tooltip("Reference to the PlayerInput component.")]
+        private PlayerInput _playerInput;
 
         /// <summary>
         /// Initializes the PlayerInputController component and sets up input bindings.
@@ -50,6 +49,14 @@ namespace Control_Module.Player
         }
 
         /// <summary>
+        ///     Handles rotation input and rotates the player entity to face the mouse cursor.
+        /// </summary>
+        private void Update()
+        {
+            HandleRotation();
+        }
+
+        /// <summary>
         /// Handles movement input and moves the player entity accordingly.
         /// </summary>
         void FixedUpdate()
@@ -58,14 +65,6 @@ namespace Control_Module.Player
                 EntityMovement.Move(_moveInput);
             else
                 EntityMovement.Stop();
-        }
-
-        /// <summary>
-        /// Handles rotation input and rotates the player entity to face the mouse cursor.
-        /// </summary>
-        void Update()
-        {
-            HandleRotation();
         }
 
         /// <summary>
@@ -113,6 +112,5 @@ namespace Control_Module.Player
         {
             _lookInput = context.ReadValue<Vector2>();
         }
-
     }
 }

@@ -6,7 +6,8 @@ namespace Locomotion.Enemy.MovementStrategies
     /// <summary>
     /// Movement strategy for enemies that patrol between waypoints.
     /// </summary>
-    [CreateAssetMenu(fileName = "PatrolMovementStrategy", menuName = "Enemy Movement Strategies/Patrol Movement Strategy")]
+    [CreateAssetMenu(fileName = "PatrolMovementStrategy",
+        menuName = "Enemy Movement Strategies/Patrol Movement Strategy")]
     public class PatrolMovementStrategy : MovementStrategy
     {
         /// <summary>

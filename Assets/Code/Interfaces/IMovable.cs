@@ -1,4 +1,5 @@
 using UnityEngine;
+
 /// <summary>
 /// Interface for movable entities
 /// </summary>

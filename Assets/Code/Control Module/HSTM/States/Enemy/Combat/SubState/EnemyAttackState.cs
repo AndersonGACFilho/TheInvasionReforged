@@ -1,18 +1,19 @@
 using Control_Module.Enemy;
 using Locomotion.MovementStrategies;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Control_Module.HSTM.States.Enemy.Combat.SubState
 {
     public class EnemyAttackState : EntityStateBase<EnemyAIContext>
     {
         private float _attackCooldown = 1.5f;
-        private float _attackTimer;
         private MovementStrategy _attackStrategy;
+        private float _attackTimer;
 
-        public EnemyAttackState(EnemyAIContext context, EntityHierarchicalStateMachine<EnemyAIContext> stateMachine) 
-            : base(context, stateMachine) { }
+        public EnemyAttackState(EnemyAIContext context, EntityHierarchicalStateMachine<EnemyAIContext> stateMachine)
+            : base(context, stateMachine)
+        {
+        }
 
         protected override void DoEnter()
         {
@@ -48,7 +49,7 @@ namespace Control_Module.HSTM.States.Enemy.Combat.SubState
         {
             Debug.Log($"{Context.gameObject.name} attacks!");
             // Fire event. Animation/Audio systems could listen.
-            Context.InvokeAttackPerformed(); 
+            Context.InvokeAttackPerformed();
         }
     }
 }

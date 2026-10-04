@@ -13,11 +13,10 @@ namespace Control_Module.HSTM.States.Enemy.OutOfCombat
     /// </remarks>
     public class EnemyOutOfCombatState : EntityStateBase<EnemyAIContext>
     {
-        private EnemyIdleState _idleState;
-        private EnemyPatrolState _patrolState;
-
         private readonly MovementStrategy _idleStrategy;
         private readonly MovementStrategy _patrolStrategy;
+        private readonly EnemyIdleState _idleState;
+        private readonly EnemyPatrolState _patrolState;
 
         /// <summary>
         /// Initializes the OutOfCombat state with its context, state machine, and child states.
@@ -28,10 +27,10 @@ namespace Control_Module.HSTM.States.Enemy.OutOfCombat
         /// <param name="patrolState">The patrol sub-state (optional).</param>
         public EnemyOutOfCombatState(
             EnemyAIContext context,
-            EntityHierarchicalStateMachine<EnemyAIContext> stateMachine, 
+            EntityHierarchicalStateMachine<EnemyAIContext> stateMachine,
             EnemyIdleState idleState,
             EnemyPatrolState patrolState = null
-            )
+        )
             : base(context, stateMachine)
         {
             _idleState = idleState;
@@ -66,7 +65,7 @@ namespace Control_Module.HSTM.States.Enemy.OutOfCombat
             var distance = Vector2.Distance(Context.transform.position, Context.target.transform.position);
             if (distance < Context.detectionRange)
             {
-                Context.InvokeTargetSpotted(); 
+                Context.InvokeTargetSpotted();
             }
         }
 
