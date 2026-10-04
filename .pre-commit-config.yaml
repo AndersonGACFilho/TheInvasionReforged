@@ -14,12 +14,37 @@ repos:
           - --maxkb=10000
 
       - id: end-of-file-fixer
-        files: '\.(cs|json|xml|yml|yaml|md|txt|asmdef|asmref|shader|cginc|hlsl|compute)$'
+        files: '\.(cs|py|json|xml|yml|yaml|md|txt|asmdef|asmref|shader|cginc|hlsl|compute)$'
 
       - id: trailing-whitespace
-        files: '\.(cs|json|xml|yml|yaml|txt|asmdef|asmref|shader|cginc|hlsl|compute)$'
+        files: '\.(cs|py|json|xml|yml|yaml|txt|asmdef|asmref|shader|cginc|hlsl|compute)$'
 
       - id: mixed-line-ending
         args:
           - --fix=lf
-        files: '\.(cs|json|xml|yml|yaml|md|txt|asmdef|asmref|shader|cginc|hlsl|compute)$'
+        files: '\.(cs|py|json|xml|yml|yaml|md|txt|asmdef|asmref|shader|cginc|hlsl|compute)$'
+
+      # Scoped to the repository's own YAML on purpose. Unity serialized
+      # files (.unity, .prefab, .asset, .meta, .mat, .anim, .controller) use
+      # Unity's own YAML dialect and must never be parsed by a generic
+      # YAML hook.
+      - id: check-yaml
+        files: '^(\.github/.+\.ya?ml|\.pre-commit-config\.yaml)$'
+
+  # Unity-specific repository state. Both scripts inspect the repository as a
+  # whole rather than the staged files, use the standard library only, and
+  # never modify anything. Heavy Unity validation (compilation, EditMode and
+  # PlayMode tests, builds) belongs in CI, not here.
+  - repo: local
+    hooks:
+      - id: unity-meta-files
+        name: Check Unity meta files
+        entry: python scripts/check_unity_meta.py
+        language: system
+        pass_filenames: false
+
+      - id: unity-generated-files
+        name: Check generated Unity files
+        entry: python scripts/check_unity_generated_files.py
+        language: system
+        pass_filenames: false

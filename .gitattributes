@@ -1,3 +1,5 @@
+# This file is the source of truth for line endings on every platform.
+# Arch Linux and Windows checkouts both get LF; no CRLF rule may be added.
 # Normalize text files to LF
 * text=auto eol=lf
 # Source code
@@ -6,6 +8,8 @@
 *.cginc text eol=lf
 *.hlsl text eol=lf
 *.compute text eol=lf
+*.py text eol=lf
+*.sh text eol=lf
 # Unity serialized text
 *.meta text eol=lf
 *.unity text eol=lf
@@ -14,6 +18,19 @@
 *.mat text eol=lf
 *.anim text eol=lf
 *.controller text eol=lf
+*.overrideController text eol=lf
+*.physicMaterial text eol=lf
+*.physicsMaterial2D text eol=lf
+*.preset text eol=lf
+*.mixer text eol=lf
+*.playable text eol=lf
+*.signal text eol=lf
+*.spriteatlas text eol=lf
+*.shadergraph text eol=lf
+*.shadersubgraph text eol=lf
+*.inputactions text eol=lf
+*.uss text eol=lf
+*.uxml text eol=lf
 # Project/configuration
 *.asmdef text eol=lf
 *.asmref text eol=lf
@@ -29,12 +46,17 @@
 *.jpeg binary
 *.gif binary
 *.tga binary
+*.tif binary
+*.tiff binary
+*.exr binary
+*.hdr binary
 *.psd filter=lfs diff=lfs merge=lfs -text
 *.fbx filter=lfs diff=lfs merge=lfs -text
 *.blend filter=lfs diff=lfs merge=lfs -text
 *.wav filter=lfs diff=lfs merge=lfs -text
 *.mp3 binary
 *.ogg binary
+*.aif binary
 *.mp4 filter=lfs diff=lfs merge=lfs -text
 *.mov binary
 *.ttf binary
@@ -42,3 +64,4 @@
 *.dll binary
 *.so binary
 *.dylib binary
+*.unitypackage binary
