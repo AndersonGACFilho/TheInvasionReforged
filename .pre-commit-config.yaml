@@ -1,0 +1,25 @@
+exclude: ^(Library|Temp|Logs|obj|Build|Builds|UserSettings)/
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+
+    hooks:
+      - id: check-case-conflict
+
+      - id: check-merge-conflict
+
+      - id: check-added-large-files
+        args:
+          - --maxkb=10000
+
+      - id: end-of-file-fixer
+        files: '\.(cs|json|xml|yml|yaml|md|txt|asmdef|asmref|shader|cginc|hlsl|compute)$'
+
+      - id: trailing-whitespace
+        files: '\.(cs|json|xml|yml|yaml|txt|asmdef|asmref|shader|cginc|hlsl|compute)$'
+
+      - id: mixed-line-ending
+        args:
+          - --fix=lf
+        files: '\.(cs|json|xml|yml|yaml|md|txt|asmdef|asmref|shader|cginc|hlsl|compute)$'
