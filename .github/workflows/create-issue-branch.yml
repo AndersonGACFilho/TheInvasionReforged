@@ -1,0 +1,326 @@
+name: Create Issue Branch
+
+on:
+  issues:
+    types:
+      - labeled
+      - unlabeled
+      - assigned
+      - unassigned
+      - edited
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  create-or-sync-branch:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Create or sync issue branch
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const issue = context.payload.issue;
+
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            core.info(`Issue number: ${issue.number}`);
+            core.info(`Issue title: ${issue.title}`);
+            core.info(`Issue assignee: ${issue.assignee?.login ?? "none"}`);
+            core.info(
+              `Issue labels: ${issue.labels.map(label => label.name).join(", ")}`
+            );
+
+            // ------------------------------------------------------------
+            // 1. Check if the issue is In Progress
+            // ------------------------------------------------------------
+
+            const allLabels = issue.labels.map(label =>
+              label.name.toLowerCase()
+            );
+
+            const isInProgress = allLabels.includes("in-progress");
+
+            if (!isInProgress) {
+              core.info(
+                "Issue is not In Progress. No branch operation required."
+              );
+              return;
+            }
+
+            // ------------------------------------------------------------
+            // 2. Find development type
+            // ------------------------------------------------------------
+
+            const allowedTypes = [
+              "feat",
+              "fix",
+              "refactor",
+              "perf",
+              "test",
+              "docs",
+              "chore",
+              "hotfix"
+            ];
+
+            const developmentLabels = allLabels.filter(label =>
+              allowedTypes.includes(label)
+            );
+
+            core.info(
+              `Development labels: ${developmentLabels.join(", ")}`
+            );
+
+            if (developmentLabels.length === 0) {
+              core.setFailed(
+                "Issue is In Progress but has no development type label."
+              );
+              return;
+            }
+
+            if (developmentLabels.length > 1) {
+              core.setFailed(
+                `Issue has multiple development type labels: ${developmentLabels.join(", ")}`
+              );
+              return;
+            }
+
+            const taskType = developmentLabels[0];
+
+            // ------------------------------------------------------------
+            // 3. Validate assignee
+            // ------------------------------------------------------------
+
+            if (!issue.assignee) {
+              core.setFailed(
+                "Issue is In Progress but has no assignee."
+              );
+              return;
+            }
+
+            const assignee =
+              issue.assignee.login.toLowerCase();
+
+            const issueNumber = issue.number;
+
+            // ------------------------------------------------------------
+            // 4. Generate task slug
+            // ------------------------------------------------------------
+
+            let taskName = issue.title;
+
+            core.info(`Original task name: ${taskName}`);
+
+            // Remove prefixes such as:
+            // [TASK]
+            // [BUG]
+            // [FEATURE]
+            taskName =
+              taskName.replace(/^\[[^\]]+\]\s*/i, "");
+
+            // Remove accents:
+            // implementação -> implementacao
+            taskName =
+              taskName
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "");
+
+            taskName = taskName.toLowerCase();
+
+            // Anything that is not alphanumeric becomes "-"
+            taskName =
+              taskName.replace(/[^a-z0-9]+/g, "-");
+
+            // Remove "-" from beginning/end
+            taskName =
+              taskName.replace(/^-+|-+$/g, "");
+
+            if (!taskName) {
+              taskName = "task";
+            }
+
+            core.info(`Task slug: ${taskName}`);
+
+            // ------------------------------------------------------------
+            // 5. Generate expected branch name
+            // ------------------------------------------------------------
+
+            let branchName;
+
+            if (taskType === "hotfix") {
+              branchName =
+                `hotfix/${assignee}/${issueNumber}-${taskName}`;
+            } else {
+              branchName =
+                `dev/${taskType}/${assignee}/${issueNumber}-${taskName}`;
+            }
+
+            core.info(`Expected branch: ${branchName}`);
+
+            // ------------------------------------------------------------
+            // 6. Load all repository branches
+            //
+            // paginate() automatically handles repositories with
+            // more than 100 branches.
+            // ------------------------------------------------------------
+
+            const branches = await github.paginate(
+              github.rest.repos.listBranches,
+              {
+                owner,
+                repo,
+                per_page: 100
+              }
+            );
+
+            core.info(
+              `Repository branches loaded: ${branches.length}`
+            );
+
+            // ------------------------------------------------------------
+            // 7. Find branch belonging to this issue
+            //
+            // Accepted:
+            //
+            // dev/feat/user/42-name
+            // dev/fix/user/42-name
+            // hotfix/user/42-name
+            // ------------------------------------------------------------
+
+            const issuePattern = new RegExp(
+              `^(dev/[^/]+/[^/]+|hotfix/[^/]+)/${issueNumber}-`
+            );
+
+            const existingBranch =
+              branches.find(branch =>
+                issuePattern.test(branch.name)
+              );
+
+            if (existingBranch) {
+              core.info(
+                `Existing branch: ${existingBranch.name}`
+              );
+            } else {
+              core.info(
+                `No branch found for issue #${issueNumber}.`
+              );
+            }
+
+            // ------------------------------------------------------------
+            // 8. CREATE
+            //
+            // hotfix -> master
+            // everything else -> develop
+            // ------------------------------------------------------------
+
+            if (!existingBranch) {
+
+              const baseBranch =
+                taskType === "hotfix"
+                  ? "master"
+                  : "develop";
+
+              core.info(
+                `Branch will be created from '${baseBranch}'.`
+              );
+
+              const baseRef =
+                await github.rest.git.getRef({
+                  owner,
+                  repo,
+                  ref: `heads/${baseBranch}`
+                });
+
+              const baseSha =
+                baseRef.data.object.sha;
+
+              core.info(
+                `Base SHA: ${baseSha}`
+              );
+
+              // createLinkedBranch does two things:
+              //
+              // 1. creates the Git branch
+              // 2. links it to the Issue
+              //
+              // Therefore it will appear under:
+              //
+              // Issue -> Development
+
+              const result = await github.graphql(
+                `
+                  mutation CreateLinkedBranch(
+                    $issueId: ID!
+                    $oid: GitObjectID!
+                    $name: String!
+                  ) {
+                    createLinkedBranch(
+                      input: {
+                        issueId: $issueId
+                        oid: $oid
+                        name: $name
+                      }
+                    ) {
+                      linkedBranch {
+                        id
+                        ref {
+                          name
+                        }
+                      }
+                    }
+                  }
+                `,
+                {
+                  issueId: issue.node_id,
+                  oid: baseSha,
+                  name: branchName
+                }
+              );
+
+              core.info(
+                `Branch '${result.createLinkedBranch.linkedBranch.ref.name}' created and linked to issue #${issueNumber}.`
+              );
+
+              return;
+            }
+
+            // ------------------------------------------------------------
+            // 9. NO-OP
+            // ------------------------------------------------------------
+
+            if (existingBranch.name === branchName) {
+              core.info(
+                `Branch '${branchName}' is already synchronized.`
+              );
+              return;
+            }
+
+            const conflictingBranch =
+              branches.find(branch =>
+                branch.name === branchName
+              );
+
+            if (conflictingBranch) {
+              core.setFailed(
+                `Cannot rename '${existingBranch.name}' to '${branchName}' because the destination branch already exists.`
+              );
+              return;
+            }
+
+            core.info(
+              `Renaming '${existingBranch.name}' to '${branchName}'.`
+            );
+
+            await github.rest.repos.renameBranch({
+              owner,
+              repo,
+              branch: existingBranch.name,
+              new_name: branchName
+            });
+
+            core.info(
+              `Branch renamed successfully: '${existingBranch.name}' -> '${branchName}'.`
+            );
