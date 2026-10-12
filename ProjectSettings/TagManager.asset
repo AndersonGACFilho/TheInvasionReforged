@@ -6,7 +6,6 @@ TagManager:
   tags:
   - Scenerio
   - Enemy
-  - Enemie
   layers:
   - Default
   - TransparentFX
@@ -41,6 +40,9 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: Scenario
+    uniqueID: 2286211687
+    locked: 0
   - name: Default
     uniqueID: 0
     locked: 0
