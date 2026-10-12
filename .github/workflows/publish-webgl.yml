@@ -1,0 +1,170 @@
+name: Publish WebGL build
+
+# Builds the game for WebGL and publishes it to the webgl-builds repository,
+# which GitHub Pages serves and the personal site embeds at /games/.
+#
+# Only the Build/ folder is replaced. The index.html next to it is written
+# for the site (language from ?lang=, canvas filling the iframe) and stays
+# untouched, so the file names below must keep matching what it loads.
+
+on:
+  # Every publish commits ~60 MB of binaries to webgl-builds, so builds are
+  # published on purpose rather than on every push.
+  workflow_dispatch:
+
+  push:
+    tags:
+      - "v*"
+
+# One publish at a time, and a running one is never cancelled, so the
+# published folder is never left half updated.
+concurrency:
+  group: publish-webgl
+  cancel-in-progress: false
+
+env:
+  # Unity names every file in Build/ after this: WebGL.loader.js,
+  # WebGL.data, WebGL.framework.js, WebGL.wasm.
+  BUILD_NAME: WebGL
+  TARGET_REPOSITORY: AndersonGACFilho/webgl-builds
+  TARGET_FOLDER: the-invasion-reforged
+
+jobs:
+  build:
+    name: Build WebGL
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Check secrets
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          WEBGL_BUILDS_DEPLOY_KEY: ${{ secrets.WEBGL_BUILDS_DEPLOY_KEY }}
+        run: |
+          missing=()
+          [ -n "$UNITY_LICENSE" ] || missing+=(UNITY_LICENSE)
+          [ -n "$UNITY_EMAIL" ] || missing+=(UNITY_EMAIL)
+          [ -n "$UNITY_PASSWORD" ] || missing+=(UNITY_PASSWORD)
+          [ -n "$WEBGL_BUILDS_DEPLOY_KEY" ] || missing+=(WEBGL_BUILDS_DEPLOY_KEY)
+
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "::error::Missing repository secrets: ${missing[*]}. See docs/web-build.md."
+            exit 1
+          fi
+
+      # The Unity WebGL editor image does not fit in the default free
+      # space of a hosted runner.
+      - name: Free disk space
+        run: |
+          sudo rm -rf \
+            /usr/share/dotnet \
+            /usr/local/lib/android \
+            /opt/ghc \
+            /opt/hostedtoolcache/CodeQL
+          df -h /
+
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          lfs: true
+
+      # Reusing the Library folder skips most of the asset import.
+      - name: Cache Library
+        uses: actions/cache@v6
+        with:
+          path: Library
+          key: Library-WebGL-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-WebGL-
+
+      - name: Build
+        uses: game-ci/unity-builder@v6
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          targetPlatform: WebGL
+          buildName: ${{ env.BUILD_NAME }}
+          # Semantic versioning needs the full tag history; the web
+          # build does not use the version number.
+          versioning: None
+
+      - name: Upload build
+        uses: actions/upload-artifact@v7
+        with:
+          name: webgl-build
+          path: build/WebGL/${{ env.BUILD_NAME }}/Build
+          retention-days: 1
+          if-no-files-found: error
+
+  publish:
+    name: Publish to webgl-builds
+    needs: build
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Download build
+        uses: actions/download-artifact@v8
+        with:
+          name: webgl-build
+          path: build
+
+      # The site's index.html loads these exact names. A missing one
+      # would publish a build that stays on the loading screen.
+      - name: Check build files
+        run: |
+          for ext in loader.js data framework.js wasm; do
+            file="build/${BUILD_NAME}.${ext}"
+            [ -f "$file" ] || { echo "::error::Missing $file"; exit 1; }
+          done
+          ls -la build
+
+      - name: Checkout webgl-builds
+        uses: actions/checkout@v7
+        with:
+          repository: ${{ env.TARGET_REPOSITORY }}
+          ssh-key: ${{ secrets.WEBGL_BUILDS_DEPLOY_KEY }}
+          path: webgl-builds
+
+      - name: Replace Build folder
+        run: |
+          rm -rf "webgl-builds/${TARGET_FOLDER}/Build"
+          mkdir -p "webgl-builds/${TARGET_FOLDER}"
+          cp -r build "webgl-builds/${TARGET_FOLDER}/Build"
+
+      - name: Commit and push
+        working-directory: webgl-builds
+        run: |
+          git add "${TARGET_FOLDER}/Build"
+
+          if git diff --cached --quiet; then
+            echo "Build is identical to the published one; nothing to publish."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git commit \
+            -m "Build WebGL do The Invasion Reforged (${GITHUB_SHA::7})" \
+            -m "Publicado por ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          git push
+
+      - name: Summary
+        run: |
+          {
+            echo "### Published"
+            echo
+            echo "- Build: https://andersongacfilho.github.io/webgl-builds/${TARGET_FOLDER}/"
+            echo "- Site: https://andersongacfilho.github.io/games/"
+            echo
+            echo "GitHub Pages takes a minute or two to serve the new files."
+          } >> "$GITHUB_STEP_SUMMARY"
