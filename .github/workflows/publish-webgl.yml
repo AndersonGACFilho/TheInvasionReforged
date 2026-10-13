@@ -4,8 +4,9 @@ name: Publish WebGL build
 # which GitHub Pages serves and the personal site embeds at /games/.
 #
 # Only the Build/ folder is replaced. The index.html next to it is written
-# for the site (language from ?lang=, canvas filling the iframe) and stays
-# untouched, so the file names below must keep matching what it loads.
+# for the site (language from ?lang=, canvas filling the iframe); the only
+# thing changed in it is the ?v= version on the four build URLs, so the file
+# names below must keep matching what it loads.
 
 on:
   # Every publish commits ~60 MB of binaries to webgl-builds, so builds are
@@ -143,10 +144,33 @@ jobs:
           mkdir -p "webgl-builds/${TARGET_FOLDER}"
           cp -r build "webgl-builds/${TARGET_FOLDER}/Build"
 
+      # Every build reuses the same file names, and Pages lets browsers
+      # cache them for 10 minutes on top of Unity's own IndexedDB cache.
+      # A returning visitor could then load the new .wasm with an old .data
+      # and crash with "memory access out of bounds". A version derived
+      # from the build's content changes the URLs only when the build
+      # changes, so identical builds still publish nothing.
+      - name: Version build URLs
+        working-directory: webgl-builds/${{ env.TARGET_FOLDER }}
+        run: |
+          version=$(cat Build/* | sha256sum | cut -c1-12)
+          echo "Build version: $version"
+
+          sed -i -E \
+            "s#(Build/${BUILD_NAME}\.(loader\.js|data|framework\.js|wasm))(\?v=[0-9a-f]+)?#\1?v=${version}#g" \
+            index.html
+
+          for ext in loader.js data framework.js wasm; do
+            grep -qF "Build/${BUILD_NAME}.${ext}?v=${version}" index.html || {
+              echo "::error::index.html no longer references Build/${BUILD_NAME}.${ext}"
+              exit 1
+            }
+          done
+
       - name: Commit and push
         working-directory: webgl-builds
         run: |
-          git add "${TARGET_FOLDER}/Build"
+          git add "${TARGET_FOLDER}/Build" "${TARGET_FOLDER}/index.html"
 
           if git diff --cached --quiet; then
             echo "Build is identical to the published one; nothing to publish."

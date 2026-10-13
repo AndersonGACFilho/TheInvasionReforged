@@ -35,17 +35,32 @@ flowchart LR
     Frame -->|/webgl-builds/the-invasion-reforged/| Index
 ```
 
-| Piece                                 | Owner                        | Changed by the workflow |
-|---------------------------------------|------------------------------|-------------------------|
-| `the-invasion-reforged/Build/`        | `webgl-builds`               | Yes, replaced each time |
-| `the-invasion-reforged/index.html`    | `webgl-builds`, hand-written | No                      |
-| Game card, controls text, `live` flag | site, `src/content/games/`   | No                      |
+| Piece                                 | Owner                        | Changed by the workflow      |
+|---------------------------------------|------------------------------|------------------------------|
+| `the-invasion-reforged/Build/`        | `webgl-builds`               | Yes, replaced each time      |
+| `the-invasion-reforged/index.html`    | `webgl-builds`, hand-written | Only the `?v=` on build URLs |
+| Game card, controls text, `live` flag | site, `src/content/games/`   | No                           |
 
 `index.html` is written for the site: it reads the language from `?lang=`,
 makes the canvas fill the iframe and shows its own loading bar. It loads
 `Build/WebGL.loader.js`, `WebGL.data`, `WebGL.framework.js` and `WebGL.wasm`
 by name, which is why the workflow builds with `buildName: WebGL` and refuses
 to publish if any of those files is missing.
+
+### Cache busting
+
+Every build reuses the same file names, and GitHub Pages lets browsers keep
+each file for 10 minutes (`cache-control: max-age=600`), on top of Unity's own
+IndexedDB cache of the `.data`. A returning visitor could then load the new
+`.wasm` with an old `.data`, which crashes at startup with
+`RuntimeError: memory access out of bounds`.
+
+So the workflow appends a version to the four build URLs in `index.html`, for
+example `Build/WebGL.data?v=57180a1928c4`. The version is a hash of the build's
+content, not of the commit: a new build gets new URLs that no cache has seen,
+and an identical build keeps the same URLs and still publishes nothing. If
+`index.html` stops referencing any of the four files, the step fails instead
+of publishing a build that would load stale files.
 
 ## How it works
 
@@ -59,7 +74,8 @@ pushed.
    `ProjectSettings/ProjectVersion.txt`. The `Build/` folder is kept as a
    one-day artifact.
 2. **Publish** — checks out `webgl-builds` with a deploy key, replaces
-   `the-invasion-reforged/Build/`, commits and pushes. If the build is
+   `the-invasion-reforged/Build/`, updates the `?v=` version in `index.html`
+   (see [cache busting](#cache-busting)), commits and pushes. If the build is
    identical to the published one, nothing is committed.
 
 GitHub Pages on `webgl-builds` picks up the push on its own; the new build is
@@ -132,3 +148,5 @@ export settings and the Pages limits (100 MB per file, ~1 GB per site).
 | `Permission denied (publickey)` when pushing       | The deploy key was added without write access, or the secret holds the public half.                     |
 | Page stays on the loading bar                      | Open `/webgl-builds/the-invasion-reforged/` directly and read the console; usually compression (above). |
 | Build is slow again after a package change         | Expected: the Library cache key includes `Packages/`, so the editor re-imports once.                    |
+| `memory access out of bounds` right at startup     | Files from two builds mixed in a cache. Reload with Ctrl+Shift+R; check `index.html` still has `?v=`.   |
+| `index.html no longer references Build/WebGL.*`    | `index.html` was edited and lost a build URL. Restore the four `Build/WebGL.*` references.              |
