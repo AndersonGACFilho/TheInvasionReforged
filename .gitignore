@@ -210,3 +210,7 @@ $RECYCLE.BIN/
 # IDE
 .idea/
 .vscode/
+
+# Unity crash recovery scenes
+/[Aa]ssets/_Recovery/
+/[Aa]ssets/_Recovery.meta
