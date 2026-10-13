@@ -1,5 +1,4 @@
 using System;
-using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -8,44 +7,14 @@ namespace Code.Scenario.Starfield
     [RequireComponent(typeof(MeshRenderer))]
     public class StarfieldRenderer : MonoBehaviour
     {
-        [Header("Configuration")]
-        [SerializeField]
-        private StarfieldConfig config;
-
-        [SerializeField]
-        private Camera targetCamera;
-
-        [Header("Rendering")]
-        [SerializeField]
-        private Material starfieldMaterial;
-        [SerializeField, Range(1f, 2f)]
-        private float quadOverscan = 1.2f;
-
-        [Header("Gradient")]
-        [SerializeField, Min(2)]
-        private int gradientResolution = 256;
-
-        private MeshRenderer _meshRenderer;
-        private Material _runtimeMaterial;
-        private Material _originalMaterial;
-
-        private GraphicsBuffer _layerBuffer;
-        private StarfieldLayerData[] _layerData;
-        private Texture2D _gradientAtlas;
-
-        private bool _configurationDirty = true;
-
         private static readonly int LayerCountId =
             Shader.PropertyToID("_LayerCount");
 
-        private static readonly int StarLayersId =
-            Shader.PropertyToID("_StarLayers");
+        private static readonly int LayerParamsId =
+            Shader.PropertyToID("_LayerParams");
 
         private static readonly int GradientAtlasId =
             Shader.PropertyToID("_GradientAtlas");
-
-        private static readonly int WorldSeedId =
-            Shader.PropertyToID("_WorldSeed");
 
         private static readonly int CameraPositionId =
             Shader.PropertyToID("_CameraPosition");
@@ -56,6 +25,39 @@ namespace Code.Scenario.Starfield
         private static readonly int StarfieldTimeId =
             Shader.PropertyToID("_StarfieldTime");
 
+        [Header("Configuration")] [SerializeField]
+        private StarfieldConfig config;
+
+        [SerializeField] private Camera targetCamera;
+
+        [Header("Rendering")] [SerializeField] private Material starfieldMaterial;
+
+        [SerializeField] [Range(1f, 2f)] private float quadOverscan = 1.2f;
+
+        [Header("Gradient")] [SerializeField] [Min(2)]
+        private int gradientResolution = 256;
+
+        /// <summary>
+        ///     Layer settings packed as float4 values. See
+        ///     <see cref="StarfieldLayerData" /> for the layout.
+        /// </summary>
+        private readonly Vector4[] _layerParams =
+            new Vector4[StarfieldLayerData.ArrayLength];
+
+        private bool _configurationDirty = true;
+
+        private Texture2D _gradientAtlas;
+
+        /// <summary>
+        ///     Number of layers uploaded to the shader, at most
+        ///     <see cref="StarfieldLayerData.MaxLayers" />.
+        /// </summary>
+        private int _layerCount;
+
+        private MeshRenderer _meshRenderer;
+        private Material _originalMaterial;
+        private Material _runtimeMaterial;
+
         private void Awake()
         {
             _meshRenderer = GetComponent<MeshRenderer>();
@@ -64,12 +66,41 @@ namespace Code.Scenario.Starfield
                 targetCamera = Camera.main;
         }
 
+        private void LateUpdate()
+        {
+            if (_configurationDirty)
+                Rebuild();
+
+            SyncLayerVisibility();
+        }
+
         private void OnEnable()
         {
             RenderPipelineManager.beginCameraRendering += OnBeginCameraRendering;
             Rebuild();
         }
-        
+
+        private void OnDisable()
+        {
+            RenderPipelineManager.beginCameraRendering -= OnBeginCameraRendering;
+            ReleaseResources();
+        }
+
+        private void OnDestroy()
+        {
+            ReleaseResources();
+        }
+
+        private void OnValidate()
+        {
+            gradientResolution = Mathf.Max(
+                2,
+                gradientResolution
+            );
+
+            _configurationDirty = true;
+        }
+
         private void OnBeginCameraRendering(
             ScriptableRenderContext context,
             Camera camera)
@@ -78,14 +109,6 @@ namespace Code.Scenario.Starfield
                 return;
 
             UpdateCameraParameters();
-        }
-
-        private void LateUpdate()
-        {
-            if (_configurationDirty)
-                Rebuild();
-
-            SyncLayerVisibility();
         }
 
         [ContextMenu("Rebuild Starfield")]
@@ -110,7 +133,19 @@ namespace Code.Scenario.Starfield
 
             int count = config.layers.Count;
 
-            _layerData = new StarfieldLayerData[count];
+            if (count > StarfieldLayerData.MaxLayers)
+            {
+                Debug.LogWarning(
+                    $"Starfield has {count} layers; only the first " +
+                    $"{StarfieldLayerData.MaxLayers} are rendered.",
+                    this
+                );
+
+                count = StarfieldLayerData.MaxLayers;
+            }
+
+            // Unused slots stay zeroed, which the shader reads as disabled.
+            Array.Clear(_layerParams, 0, _layerParams.Length);
 
             for (int i = 0; i < count; i++)
             {
@@ -123,23 +158,18 @@ namespace Code.Scenario.Starfield
                     return;
                 }
 
-                _layerData[i] =
-                    StarfieldLayerData.FromConfig(config.layers[i]);
+                StarfieldLayerData.Write(
+                    config.layers[i],
+                    config.worldSeed,
+                    _layerParams,
+                    i
+                );
             }
+
+            _layerCount = count;
 
             try
             {
-                int stride =
-                    Marshal.SizeOf<StarfieldLayerData>();
-
-                _layerBuffer = new GraphicsBuffer(
-                    GraphicsBuffer.Target.Structured,
-                    count,
-                    stride
-                );
-
-                _layerBuffer.SetData(_layerData);
-
                 _gradientAtlas = StarfieldGradientBaker.Bake(
                     config,
                     gradientResolution
@@ -150,9 +180,9 @@ namespace Code.Scenario.Starfield
                     name = starfieldMaterial.name + " (Runtime)"
                 };
 
-                _runtimeMaterial.SetBuffer(
-                    StarLayersId,
-                    _layerBuffer
+                _runtimeMaterial.SetVectorArray(
+                    LayerParamsId,
+                    _layerParams
                 );
 
                 _runtimeMaterial.SetTexture(
@@ -160,12 +190,7 @@ namespace Code.Scenario.Starfield
                     _gradientAtlas
                 );
 
-                _runtimeMaterial.SetInt(LayerCountId, count);
-
-                _runtimeMaterial.SetInt(
-                    WorldSeedId,
-                    config.worldSeed
-                );
+                _runtimeMaterial.SetInteger(LayerCountId, count);
 
                 _meshRenderer.sharedMaterial = _runtimeMaterial;
 
@@ -177,39 +202,41 @@ namespace Code.Scenario.Starfield
                 ReleaseResources();
             }
         }
-        
+
         private void SyncLayerVisibility()
         {
-            if (_layerBuffer == null ||
-                _layerData == null ||
+            if (_runtimeMaterial == null ||
                 config?.layers == null ||
-                config.layers.Count != _layerData.Length)
+                config.layers.Count < _layerCount)
             {
                 return;
             }
 
             bool changed = false;
 
-            for (int i = 0; i < _layerData.Length; i++)
+            for (var i = 0; i < _layerCount; i++)
             {
                 StarLayer layer = config.layers[i];
 
                 if (layer == null)
                     continue;
 
-                uint enabled = layer.enabled ? 1u : 0u;
-
-                if (_layerData[i].Enabled == enabled)
-                    continue;
-
-                _layerData[i].Enabled = enabled;
-                changed = true;
+                changed |= StarfieldLayerData.WriteEnabled(
+                    layer.enabled,
+                    _layerParams,
+                    i
+                );
             }
 
             if (changed)
-                _layerBuffer.SetData(_layerData);
+            {
+                _runtimeMaterial.SetVectorArray(
+                    LayerParamsId,
+                    _layerParams
+                );
+            }
         }
-        
+
         private void UpdateCameraParameters()
         {
             if (_runtimeMaterial == null ||
@@ -238,7 +265,7 @@ namespace Code.Scenario.Starfield
                 StarfieldTimeId,
                 Time.time
             );
-            
+
             transform.position = new Vector3(
                 position.x,
                 position.y,
@@ -252,27 +279,6 @@ namespace Code.Scenario.Starfield
             );
         }
 
-        private void OnValidate()
-        {
-            gradientResolution = Mathf.Max(
-                2,
-                gradientResolution
-            );
-
-            _configurationDirty = true;
-        }
-
-        private void OnDisable()
-        {
-            RenderPipelineManager.beginCameraRendering -= OnBeginCameraRendering;
-            ReleaseResources();
-        }
-
-        private void OnDestroy()
-        {
-            ReleaseResources();
-        }
-
         private void ReleaseResources()
         {
             if (_meshRenderer != null && _runtimeMaterial != null &&
@@ -281,8 +287,7 @@ namespace Code.Scenario.Starfield
                 _meshRenderer.sharedMaterial = _originalMaterial;
             }
 
-            _layerBuffer?.Release();
-            _layerBuffer = null;
+            _layerCount = 0;
 
             if (_gradientAtlas != null)
             {
