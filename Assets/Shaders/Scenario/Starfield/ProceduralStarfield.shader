@@ -1,4 +1,3 @@
-
 Shader "TheInvasion/Starfield/Procedural"
 {
     Properties
@@ -19,7 +18,10 @@ Shader "TheInvasion/Starfield/Procedural"
         Pass
         {
             Name "Starfield"
-            Tags { "LightMode" = "SRPDefaultUnlit" }
+            Tags
+            {
+                "LightMode" = "SRPDefaultUnlit"
+            }
 
             Cull Off
             ZWrite Off
@@ -27,15 +29,22 @@ Shader "TheInvasion/Starfield/Procedural"
             Blend Off
 
             HLSLPROGRAM
-            #pragma target 4.5
+            // 3.5 is what WebGL 2 supports: integer maths and dynamic
+            // loops, but no structured buffers or compute.
+            #pragma target 3.5
             #pragma vertex Vert
             #pragma fragment Frag
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
+            // Must match StarfieldLayerData.MaxLayers and
+            // StarfieldLayerData.VectorsPerLayer in C#.
+            #define STARFIELD_MAX_LAYERS 8
+            #define STARFIELD_VECTORS_PER_LAYER 5
+
             struct StarfieldLayerData
             {
-                uint Enabled;
+                bool Enabled;
                 float ParallaxFactor;
                 float Density;
                 float MinSize;
@@ -51,23 +60,26 @@ Shader "TheInvasion/Starfield/Procedural"
                 float GlowIntensity;
 
                 float GlowProbability;
-                uint SeedOffset;
                 float FlareProbability;
                 float FlareIntensity;
-
                 float FlareLength;
-                float Padding0;
-                float Padding1;
-                float Padding2;
+
+                // World seed combined with the layer's seed offset.
+                uint Seed;
             };
 
-            StructuredBuffer<StarfieldLayerData> _StarLayers;
+            // Layer settings as a uniform array rather than a
+            // StructuredBuffer, which WebGL 2 does not have. The layout
+            // is documented in StarfieldLayerData.cs.
+            float4 _LayerParams[
+                STARFIELD_MAX_LAYERS * STARFIELD_VECTORS_PER_LAYER
+            ];
 
             TEXTURE2D(_GradientAtlas);
             SAMPLER(sampler_GradientAtlas);
+            float4 _GradientAtlas_TexelSize;
 
             int _LayerCount;
-            int _WorldSeed;
 
             float4 _CameraPosition;
             float4 _CameraWorldSize;
@@ -94,6 +106,46 @@ Shader "TheInvasion/Starfield/Procedural"
                 return output;
             }
 
+            StarfieldLayerData LoadLayer(uint layerIndex)
+            {
+                uint offset =
+                    layerIndex * STARFIELD_VECTORS_PER_LAYER;
+
+                float4 v0 = _LayerParams[offset];
+                float4 v1 = _LayerParams[offset + 1];
+                float4 v2 = _LayerParams[offset + 2];
+                float4 v3 = _LayerParams[offset + 3];
+                float4 v4 = _LayerParams[offset + 4];
+
+                StarfieldLayerData layer;
+
+                layer.Enabled = v0.x > 0.5;
+                layer.ParallaxFactor = v0.y;
+                layer.Density = v0.z;
+                layer.MinSize = v0.w;
+
+                layer.MaxSize = v1.x;
+                layer.CellSize = v1.y;
+                layer.Brightness = v1.z;
+                layer.TwinkleIntensity = v1.w;
+
+                layer.MinTwinkleFrequency = v2.x;
+                layer.MaxTwinkleFrequency = v2.y;
+                layer.TwinkleProbability = v2.z;
+                layer.GlowIntensity = v2.w;
+
+                layer.GlowProbability = v3.x;
+                layer.FlareProbability = v3.y;
+                layer.FlareIntensity = v3.z;
+                layer.FlareLength = v3.w;
+
+                // The seed arrives as two exact 16-bit halves.
+                layer.Seed =
+                    (uint)v4.x | ((uint)v4.y << 16);
+
+                return layer;
+            }
+
             uint StarfieldHash(uint value)
             {
                 value ^= value >> 16;
@@ -113,9 +165,9 @@ Shader "TheInvasion/Starfield/Procedural"
             uint CellSeed(
                 int2 cell,
                 uint layerIndex,
-                uint seedOffset)
+                uint layerSeed)
             {
-                uint seed = asuint(_WorldSeed) ^ seedOffset;
+                uint seed = layerSeed;
 
                 seed ^= StarfieldHash(
                     asuint(cell.x) + 0x9e3779b9u
@@ -250,16 +302,10 @@ Shader "TheInvasion/Starfield/Procedural"
                 float colorRandom =
                     Random01(seed ^ 0x51aabbccu);
 
-                uint atlasWidth;
-                uint atlasHeight;
-
-                _GradientAtlas.GetDimensions(
-                    atlasWidth,
-                    atlasHeight
-                );
-
+                // _TexelSize is (1/width, 1/height, width, height),
+                // filled in by Unity. One atlas row per layer.
                 float halfTexel =
-                    0.5 / max(1.0, (float)atlasWidth);
+                    0.5 * _GradientAtlas_TexelSize.x;
 
                 float2 gradientUV = float2(
                     lerp(
@@ -268,7 +314,7 @@ Shader "TheInvasion/Starfield/Procedural"
                         colorRandom
                     ),
                     (float(layerIndex) + 0.5)
-                    / max(1.0, (float)_LayerCount)
+                    * _GradientAtlas_TexelSize.y
                 );
 
                 return SAMPLE_TEXTURE2D_LOD(
@@ -283,9 +329,9 @@ Shader "TheInvasion/Starfield/Procedural"
                 float2 screenUV,
                 uint layerIndex)
             {
-                StarfieldLayerData layer = _StarLayers[layerIndex];
+                StarfieldLayerData layer = LoadLayer(layerIndex);
 
-                if (layer.Enabled == 0u ||
+                if (!layer.Enabled ||
                     layer.Density <= 0.0 ||
                     layer.Brightness <= 0.0)
                 {
@@ -337,7 +383,7 @@ Shader "TheInvasion/Starfield/Procedural"
                         uint seed = CellSeed(
                             cell,
                             layerIndex,
-                            layer.SeedOffset
+                            layer.Seed
                         );
 
                         if (Random01(seed ^ 0x11aabbccu)
@@ -459,8 +505,13 @@ Shader "TheInvasion/Starfield/Procedural"
             {
                 float3 color = 0.0;
 
+                int layerCount = min(
+                    _LayerCount,
+                    STARFIELD_MAX_LAYERS
+                );
+
                 [loop]
-                for (int layer = 0; layer < _LayerCount; ++layer)
+                for (int layer = 0; layer < layerCount; ++layer)
                 {
                     color += GenerateLayer(
                         input.uv,
@@ -473,7 +524,6 @@ Shader "TheInvasion/Starfield/Procedural"
 
                 return half4(color, 1.0);
             }
-
             ENDHLSL
         }
     }
