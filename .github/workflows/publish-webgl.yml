@@ -41,13 +41,11 @@ jobs:
     steps:
       - name: Check secrets
         env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
           WEBGL_BUILDS_DEPLOY_KEY: ${{ secrets.WEBGL_BUILDS_DEPLOY_KEY }}
         run: |
           missing=()
-          [ -n "$UNITY_LICENSE" ] || missing+=(UNITY_LICENSE)
           [ -n "$UNITY_EMAIL" ] || missing+=(UNITY_EMAIL)
           [ -n "$UNITY_PASSWORD" ] || missing+=(UNITY_PASSWORD)
           [ -n "$WEBGL_BUILDS_DEPLOY_KEY" ] || missing+=(WEBGL_BUILDS_DEPLOY_KEY)
@@ -82,10 +80,14 @@ jobs:
           restore-keys: |
             Library-WebGL-
 
+      # Email and password alone select GameCI's Personal activation,
+      # which requests a free seat for the runner and returns it at the
+      # end. A .ulf is not passed on purpose: Unity 6 no longer prints the
+      # line GameCI uses to confirm a file activation, so it retried five
+      # times on every build before carrying on.
       - name: Build
         uses: game-ci/unity-builder@v6
         env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:

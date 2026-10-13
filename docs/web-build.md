@@ -70,35 +70,28 @@ about 60 MB of binaries to `webgl-builds`, whose history keeps all of them.
 
 ## One-time setup
 
-### 1. Unity license
+### 1. Unity account
 
-GameCI needs a `.ulf` license file. Unity Hub 3.x activates Personal licenses
-in a newer format and does not write one, so generate it with the Licensing
-Client shipped with the editor:
-
-```bash
-/mnt/dados/Apps/Unity/6000.2.8f1/Editor/Data/Resources/Licensing/Client/Unity.Licensing.Client --activate-ulf --username "<email>" --password "<password>"
-```
-
-Run it in a terminal where the password does not end up in the shell history
-(for example reading it with `read -rs` first). The file is written to
-`~/.local/share/unity3d/Unity/Unity_lic.ulf`.
+The build activates a Personal (free) seat with the Unity account's email and
+password: GameCI requests a seat for the runner at the start of the build and
+returns it at the end. No license file is involved.
 
 The account needs a real password: accounts that sign in only through Google,
 GitHub or Apple must set one at id.unity.com first.
 
+A `.ulf` license file is **not** used on purpose. GameCI now reserves file
+activation for Enterprise and Industry seats, and with Unity 6 it cannot
+confirm a file activation: it looks for a log line Unity 6 no longer prints,
+so every build retried the activation five times, about seven minutes, before
+carrying on.
+
 ### 2. Repository secrets
 
-| Secret                    | Value                                                   |
-|---------------------------|---------------------------------------------------------|
-| `UNITY_LICENSE`           | Full contents of `Unity_lic.ulf`                        |
-| `UNITY_EMAIL`             | Email of the Unity account                              |
-| `UNITY_PASSWORD`          | Password of the Unity account                           |
-| `WEBGL_BUILDS_DEPLOY_KEY` | Private half of the deploy key described below          |
-
-```bash
-gh secret set UNITY_LICENSE < ~/.local/share/unity3d/Unity/Unity_lic.ulf
-```
+| Secret                    | Value                                          |
+|---------------------------|------------------------------------------------|
+| `UNITY_EMAIL`             | Email of the Unity account                     |
+| `UNITY_PASSWORD`          | Password of the Unity account                  |
+| `WEBGL_BUILDS_DEPLOY_KEY` | Private half of the deploy key described below |
 
 `gh secret set UNITY_EMAIL` and `gh secret set UNITY_PASSWORD` prompt for the
 value, so they must run in a real terminal.
@@ -115,7 +108,7 @@ personal access token:
    (`gh secret set WEBGL_BUILDS_DEPLOY_KEY < key`).
 4. Delete both local copies.
 
-The workflow checks all four secrets first and fails with the names of any
+The workflow checks all three secrets first and fails with the names of any
 missing one, before spending time on the build.
 
 ## WebGL settings that matter
@@ -130,11 +123,12 @@ export settings and the Pages limits (100 MB per file, ~1 GB per site).
 
 ## Troubleshooting
 
-| Symptom                                           | Cause and fix                                                                                              |
-|---------------------------------------------------|------------------------------------------------------------------------------------------------------------|
-| `Missing repository secrets: ...`                 | Add the listed secrets (see [setup](#one-time-setup)).                                                     |
-| License activation fails in the build step        | The `.ulf` was copied incompletely or belongs to another account. Generate it again and set the secret.    |
-| `Missing build/WebGL.*`                           | `BUILD_NAME` no longer matches the names `index.html` loads. Keep them in sync.                            |
-| `Permission denied (publickey)` when pushing      | The deploy key was added without write access, or the secret holds the public half.                       |
-| Page stays on the loading bar                     | Open `/webgl-builds/the-invasion-reforged/` directly and read the console; usually compression (above).    |
-| Build is slow again after a package change        | Expected: the Library cache key includes `Packages/`, so the editor re-imports once.                       |
+| Symptom                                            | Cause and fix                                                                                           |
+|----------------------------------------------------|---------------------------------------------------------------------------------------------------------|
+| `Missing repository secrets: ...`                  | Add the listed secrets (see [setup](#one-time-setup)).                                                  |
+| License activation fails in the build step         | Wrong email or password, or the account has no free Personal seat. Check the seats at id.unity.com.     |
+| Activation retries with "known-transient" warnings | A `UNITY_LICENSE` secret is being passed again. Remove it from the workflow: it forces file activation. |
+| `Missing build/WebGL.*`                            | `BUILD_NAME` no longer matches the names `index.html` loads. Keep them in sync.                         |
+| `Permission denied (publickey)` when pushing       | The deploy key was added without write access, or the secret holds the public half.                     |
+| Page stays on the loading bar                      | Open `/webgl-builds/the-invasion-reforged/` directly and read the console; usually compression (above). |
+| Build is slow again after a package change         | Expected: the Library cache key includes `Packages/`, so the editor re-imports once.                    |
