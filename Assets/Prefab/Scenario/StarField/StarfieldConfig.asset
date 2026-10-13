@@ -1,0 +1,160 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62dd10a300fc487f8bfd2c1a290ee44c, type: 3}
+  m_Name: StarfieldConfig
+  m_EditorClassIdentifier: Assembly-CSharp::StarfieldConfig
+  worldSeed: 12345
+  layers:
+  - layerName: Distant
+    enabled: 1
+    parallaxFactor: 0.01
+    density: 0.595
+    minSize: 0.008
+    maxSize: 0.014
+    cellSize: 0.9
+    colorGradient:
+      serializedVersion: 2
+      key0: {r: 0.6627451, g: 0.78039217, b: 1, a: 1}
+      key1: {r: 0.9490196, g: 0.9607843, b: 1, a: 1}
+      key2: {r: 1, g: 0.7019608, b: 0.54901963, a: 0}
+      key3: {r: 0, g: 0, b: 0, a: 0}
+      key4: {r: 0, g: 0, b: 0, a: 0}
+      key5: {r: 0, g: 0, b: 0, a: 0}
+      key6: {r: 0, g: 0, b: 0, a: 0}
+      key7: {r: 0, g: 0, b: 0, a: 0}
+      ctime0: 0
+      ctime1: 32768
+      ctime2: 65535
+      ctime3: 0
+      ctime4: 0
+      ctime5: 0
+      ctime6: 0
+      ctime7: 0
+      atime0: 0
+      atime1: 65535
+      atime2: 0
+      atime3: 0
+      atime4: 0
+      atime5: 0
+      atime6: 0
+      atime7: 0
+      m_Mode: 0
+      m_ColorSpace: -1
+      m_NumColorKeys: 3
+      m_NumAlphaKeys: 2
+    brightness: 0.45
+    twinkleIntensity: 0.04
+    minTwinkleFrequency: 0.1
+    maxTwinkleFrequency: 0.35
+    twinkleProbability: 0.1
+    flareProbability: 0.005
+    flareIntensity: 0.05
+    flareLength: 2
+    glowIntensity: 0.04
+    glowProbability: 0.02
+    seedOffset: 0
+  - layerName: Middle
+    enabled: 1
+    parallaxFactor: 0.1
+    density: 0.4
+    minSize: 0.01
+    maxSize: 0.02
+    cellSize: 1.1
+    colorGradient:
+      serializedVersion: 2
+      key0: {r: 0.6627451, g: 0.78039217, b: 1, a: 1}
+      key1: {r: 0.9490196, g: 0.9607843, b: 1, a: 1}
+      key2: {r: 1, g: 0.7019608, b: 0.54901963, a: 0}
+      key3: {r: 0, g: 0, b: 0, a: 0}
+      key4: {r: 0, g: 0, b: 0, a: 0}
+      key5: {r: 0, g: 0, b: 0, a: 0}
+      key6: {r: 0, g: 0, b: 0, a: 0}
+      key7: {r: 0, g: 0, b: 0, a: 0}
+      ctime0: 0
+      ctime1: 32768
+      ctime2: 65535
+      ctime3: 0
+      ctime4: 0
+      ctime5: 0
+      ctime6: 0
+      ctime7: 0
+      atime0: 0
+      atime1: 65535
+      atime2: 0
+      atime3: 0
+      atime4: 0
+      atime5: 0
+      atime6: 0
+      atime7: 0
+      m_Mode: 0
+      m_ColorSpace: -1
+      m_NumColorKeys: 3
+      m_NumAlphaKeys: 2
+    brightness: 0.65
+    twinkleIntensity: 0.08
+    minTwinkleFrequency: 0.15
+    maxTwinkleFrequency: 0.5
+    twinkleProbability: 0.2
+    flareProbability: 0.025
+    flareIntensity: 0.12
+    flareLength: 3.5
+    glowIntensity: 0.12
+    glowProbability: 0.1
+    seedOffset: 0
+  - layerName: Near
+    enabled: 1
+    parallaxFactor: 0.2
+    density: 0.03
+    minSize: 0.015
+    maxSize: 0.03
+    cellSize: 1.4
+    colorGradient:
+      serializedVersion: 2
+      key0: {r: 0.6627451, g: 0.78039217, b: 1, a: 1}
+      key1: {r: 0.9490196, g: 0.9607843, b: 1, a: 1}
+      key2: {r: 1, g: 0.7019608, b: 0.54901963, a: 0}
+      key3: {r: 0, g: 0, b: 0, a: 0}
+      key4: {r: 0, g: 0, b: 0, a: 0}
+      key5: {r: 0, g: 0, b: 0, a: 0}
+      key6: {r: 0, g: 0, b: 0, a: 0}
+      key7: {r: 0, g: 0, b: 0, a: 0}
+      ctime0: 0
+      ctime1: 32768
+      ctime2: 65535
+      ctime3: 0
+      ctime4: 0
+      ctime5: 0
+      ctime6: 0
+      ctime7: 0
+      atime0: 0
+      atime1: 65535
+      atime2: 0
+      atime3: 0
+      atime4: 0
+      atime5: 0
+      atime6: 0
+      atime7: 0
+      m_Mode: 0
+      m_ColorSpace: -1
+      m_NumColorKeys: 3
+      m_NumAlphaKeys: 2
+    brightness: 0.85
+    twinkleIntensity: 0.2
+    minTwinkleFrequency: 0.2
+    maxTwinkleFrequency: 0.7
+    twinkleProbability: 0.5
+    flareProbability: 0.08
+    flareIntensity: 0.25
+    flareLength: 5
+    glowIntensity: 0.25
+    glowProbability: 0.25
+    seedOffset: 0

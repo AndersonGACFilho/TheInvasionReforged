@@ -65,7 +65,7 @@ state machine and the movement strategies.
 Assets/Code/
 ├── Control Module/       Who decides what an entity does
 │   ├── EntityController.cs
-│   ├── Player/PlayerInputController.cs
+│   ├── Player/PlayerInputController.cs · CameraLookAhead.cs
 │   ├── Enemy/EnemyBrain.cs · EnemyAIContext.cs
 │   └── HSTM/             Hierarchical state machine and its states
 ├── Locomotion Module/    How an entity moves once something decided
@@ -115,6 +115,14 @@ handed.
 This is the Open/Closed Principle where it actually pays off, and it is what
 lets an enemy swap movement mid-run as its state changes.
 
+### Player and camera
+
+The ship aims at the cursor and flies relative to where it points: `W`/`S`
+thrust along the nose, `A`/`D` strafe. The camera leads the ship through a
+`LookTarget` object that Cinemachine tracks, rather than being moved
+directly. Details, tuning and known limitations are in
+[Player controls and camera](docs/player-controls.md).
+
 ### SOLID in practice
 
 | Principle | Where it shows                                                                                          |
@@ -135,8 +143,11 @@ something already in place.
 git clone https://github.com/AndersonGACFilho/TheInvasionReforged
 ```
 
-Open in Unity Hub with editor **6000.2.8f1**, load
-`Assets/Scenes/SampleScene.unity` and press Play.
+The latest published build runs in the browser at
+<https://andersongacfilho.github.io/play/the-invasion-reforged/>.
+
+To run it from source, open in Unity Hub with editor **6000.2.8f1**, load
+`Assets/Scenes/Enemy HSTM Test Bed.unity` and press Play.
 
 That scene is the test bed for the state machine rather than a level: a
 player ship, melee and ranged enemies running their movement strategies, and
@@ -157,6 +168,7 @@ in the [`docs/`](docs/) directory.
   naming, Pull Requests
 - [GitHub automation](docs/github-automation.md) — Project V2 and automatic
   branch creation
+- [Web build](docs/web-build.md) — WebGL build and publishing to the personal site
 
 ## History
 
