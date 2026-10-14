@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 176bfdba6f9b49f5b9048eab7f621082, type: 3}
+  m_Name: NebulaConfig
+  m_EditorClassIdentifier: Assembly-CSharp::Code.Scenario.Starfield.NebulaConfig
+  worldSeed: 24680
+  regionSize: 100
+  starHalo: 1
+  starCluster: 2
+  animationFrameRate: 100000
+  layers:
+  - layerName: Hydrogen
+    enabled: 1
+    kind: 0
+    palette: {fileID: 11400000, guid: 045d97fb0df444d0aa4301ceef2c83dd, type: 2}
+    parallaxFactor: 0.05
+    intensity: 0.6
+    pixelScale: 3
+    cloudSize: 12
+    octaves: 4
+    warp: 1.2
+    threshold: 0.4
+    contrast: 2.6
+    veil: 0.35
+    absorption: 0.85
+    flowRadius: 0.3
+    cyclePeriod: 180
+    regionMin: 0.4
+    regionMax: 1
+    seedOffset: 0
+  - layerName: Dust lanes
+    enabled: 1
+    kind: 1
+    palette: {fileID: 11400000, guid: 1ce6ed0692a2435b87d7775d20faf4c2, type: 2}
+    parallaxFactor: 0.15
+    intensity: 1
+    pixelScale: 2
+    cloudSize: 5
+    octaves: 3
+    warp: 1.6
+    threshold: 0.52
+    contrast: 3.2
+    veil: 0.35
+    absorption: 0.85
+    flowRadius: 0.2
+    cyclePeriod: 240
+    regionMin: 0
+    regionMax: 0.62
+    seedOffset: 7

@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b86484b34354b6c9591022367c53a0a, type: 3}
+  m_Name: NebulaPalette_Dust
+  m_EditorClassIdentifier: Assembly-CSharp::Code.Scenario.Starfield.NebulaPalette
+  tones:
+  - {r: 0.0470588, g: 0.0352941, b: 0.0470588, a: 1}
+  - {r: 0.0235294, g: 0.0196078, b: 0.0313725, a: 1}
+  luminanceWarning: 0.12
