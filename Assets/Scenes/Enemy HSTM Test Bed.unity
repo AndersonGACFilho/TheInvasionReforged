@@ -866,11 +866,13 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1110906a786f4104b9bebd24d1c89a87, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Code.Scenario.Starfield.StarfieldRenderer
+  m_EditorClassIdentifier: Assembly-CSharp::Code.Scenario.Starfield.SpaceBackgroundRenderer
   config: {fileID: 11400000, guid: b569c41f028a82418bcce29d0d2eed23, type: 2}
+  nebulaConfig: {fileID: 11400000, guid: ef62c73287794716b9cce51c0249cf50, type: 2}
   targetCamera: {fileID: 0}
-  starfieldMaterial: {fileID: 2100000, guid: 269e9ce98d3bc0a2fb545440fdc39b97, type: 2}
+  material: {fileID: 2100000, guid: 269e9ce98d3bc0a2fb545440fdc39b97, type: 2}
   quadOverscan: 1.2
+  pixelsPerUnit: 32
   gradientResolution: 256
 --- !u!64 &857564473
 MeshCollider:
@@ -919,7 +921,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 269e9ce98d3bc0a2fb545440fdc39b97, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2678,30 +2680,6 @@ PrefabInstance:
     - target: {fileID: 2156336224023981552, guid: 6bb44a18ed87f74439934b881fa99d00, type: 3}
       propertyPath: m_Name
       value: PlayerCharacter
-      objectReference: {fileID: 0}
-    - target: {fileID: 2156336224023981552, guid: 6bb44a18ed87f74439934b881fa99d00, type: 3}
-      propertyPath: m_Layer
-      value: 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 3127313652986355615, guid: 6bb44a18ed87f74439934b881fa99d00, type: 3}
-      propertyPath: m_Layer
-      value: 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 3278050156916558885, guid: 6bb44a18ed87f74439934b881fa99d00, type: 3}
-      propertyPath: m_Mass
-      value: 1000
-      objectReference: {fileID: 0}
-    - target: {fileID: 3278050156916558885, guid: 6bb44a18ed87f74439934b881fa99d00, type: 3}
-      propertyPath: m_Interpolate
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3278050156916558885, guid: 6bb44a18ed87f74439934b881fa99d00, type: 3}
-      propertyPath: m_CollisionDetection
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3361464234344068165, guid: 6bb44a18ed87f74439934b881fa99d00, type: 3}
-      propertyPath: m_ClearFlags
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5517960014845763027, guid: 6bb44a18ed87f74439934b881fa99d00, type: 3}
       propertyPath: m_LocalPosition.x
