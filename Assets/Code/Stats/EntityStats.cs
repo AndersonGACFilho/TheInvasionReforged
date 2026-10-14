@@ -10,6 +10,21 @@ using UnityEngine;
 public class EntityStats : MonoBehaviour
 {
     [Header("Stats")]
+    [Header("Speed Stats")]
+    [Tooltip("Acceleration of the entity.")]
+    public float acceleration;
     [Tooltip("Movement speed of the entity.")]
-    public float speed = 5f;
+    public float speed = 2f;
+    [Tooltip("Maximum movement speed of the entity.")]
+    public float maxSpeed = 5f;
+    [Tooltip("Current movement speed of the entity.")]
+    public float currentMovementSpeed = 0;
+    public void SetMovementSpeed(float value)
+    {
+        currentMovementSpeed = Mathf.Clamp(
+            value,
+            0f,
+            maxSpeed
+        );
+    }
 }

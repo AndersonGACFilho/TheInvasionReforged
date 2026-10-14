@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace Locomotion
@@ -18,6 +19,12 @@ namespace Locomotion
 
         [Tooltip("Reference to the Rigidbody2D component.")]
         private Rigidbody2D _rigidbody2D;
+        
+        [Tooltip("Reference to the entities animator component.")]
+        private Animator _animator;
+        
+        [Tooltip("The flag that the entity is moving.")]
+        private bool _isMoving = false;
 
         /// <summary>
         /// Initializes the EntityMovement component.
@@ -26,6 +33,7 @@ namespace Locomotion
         {
             entityStats = gameObject.GetComponent<EntityStats>();
             _rigidbody2D = gameObject.GetComponent<Rigidbody2D>();
+            _animator = gameObject.GetComponent<Animator>();
         }
 
         /// <summary>
@@ -35,8 +43,33 @@ namespace Locomotion
         /// <param name="speedOverride"> Optional speed override. If null, the entity's default speed is used. </param>
         public void Move(Vector2 direction, float? speedOverride = null)
         {
-            float speedValue = speedOverride ?? entityStats.speed;
-            _rigidbody2D.linearVelocity = direction.normalized * speedValue;
+            if (direction.sqrMagnitude < 0.0001f)
+            {
+                Stop();
+                return;
+            }
+            
+            var initialSpeed = speedOverride ?? entityStats.speed;
+
+            if (!_isMoving)
+            {
+                entityStats.currentMovementSpeed = initialSpeed;
+                _isMoving = true;
+            }
+
+            entityStats.SetMovementSpeed(
+                Mathf.MoveTowards(
+                    entityStats.currentMovementSpeed,
+                    entityStats.maxSpeed,
+                    entityStats.acceleration * Time.fixedDeltaTime
+                )
+            );
+            
+            _rigidbody2D.linearVelocity = direction.normalized * 
+                                    entityStats.currentMovementSpeed;
+            
+            if (_animator)
+                _animator.SetFloat("Speed", entityStats.currentMovementSpeed);
         }
 
         /// <summary>
@@ -44,7 +77,12 @@ namespace Locomotion
         /// </summary>
         public void Stop()
         {
+            _isMoving = false;
+            entityStats.currentMovementSpeed = 0;
+            
             _rigidbody2D.linearVelocity = Vector2.zero;
+            if (_animator)
+                _animator.SetFloat("Speed", 0);
         }
     }
 }
