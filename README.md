@@ -72,6 +72,7 @@ Assets/Code/
 │   ├── EntityMovement.cs
 │   ├── MovementStrategy.cs
 │   └── Enemy/MovementStrategies/
+├── Scenario/Starfield/    Procedural space background: stars and nebulae
 ├── Stats/EntityStats.cs
 ├── Interfaces/IMovable.cs
 └── UI Module/Widgets/
@@ -122,6 +123,15 @@ thrust along the nose, `A`/`D` strafe. The camera leads the ship through a
 `LookTarget` object that Cinemachine tracks, rather than being moved
 directly. Details, tuning and known limitations are in
 [Player controls and camera](docs/player-controls.md).
+
+### Space background
+
+Stars and nebulae are generated in a shader from world position, seed and
+time, so the same place always looks the same. Star and nebula layers are
+separate assets, merged by depth and composed in one pass: nebulae sit
+between star layers, dust hides the stars behind it and slow-flowing gas
+returns to its exact shape on a cycle. Tuning, palettes and limits are in
+[Space background](docs/space-background.md).
 
 ### SOLID in practice
 
